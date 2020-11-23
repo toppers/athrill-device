@@ -18,13 +18,14 @@ typedef struct {
 } AthrillGpsInputType;
 typedef struct {
 	double		latitude;
-	double		longtitude;
+	double		longitude;
 } AthrillGpsOutputType;
 static AthrillGpsInputType *athrill_gps_input;
 static AthrillGpsOutputType *athrill_gps_output;
 static uint32 athrill_gpsdev_addr;
 static AthrillExDevOperationType *athrill_ex_devop;
 static uint32 serial_channel;
+static int UTMZoneId = 54;
 static AthrillSerialFifoType *serial;
 static void athrill_gps_convert(AthrillGpsInputType *in, AthrillGpsOutputType *out);
 
@@ -87,7 +88,7 @@ void ex_device_supply_clock(DeviceClockType *dev_clock)
 			}
 			if (serial != NULL) {
 				//printf("latitude=%lf longtitude=%lf\n", athrill_gps_output->latitude, athrill_gps_output->longtitude);
-				uint32 len = snprintf(output_buffer, sizeof(output_buffer), "$GPRMC:%ld,%lf,%lf\n", t, athrill_gps_output->latitude, athrill_gps_output->longtitude);
+				uint32 len = snprintf(output_buffer, sizeof(output_buffer), "$GPRMC:%ld,A,%lf,N,%lf,W\n", t, athrill_gps_output->latitude, athrill_gps_output->longitude);
 				uint32 res;
 				(void)athrill_ex_devop->libs.fifo.add(&serial->rd, output_buffer, len, &res);
 			}
@@ -100,10 +101,9 @@ void ex_device_supply_clock(DeviceClockType *dev_clock)
 /**************************************
  * END: external symbols
  **************************************/
-
 static void athrill_gps_convert(AthrillGpsInputType *in, AthrillGpsOutputType *out)
 {
-	double x = in->easting - 500000;
+	double x = in->easting - 500000L;
 	double y = in->northing;
 	double m = y / GPS_CONST_K0;
 	double mu = m / (GPS_CONST_R * GPS_CONST_M1);
@@ -147,9 +147,12 @@ static void athrill_gps_convert(AthrillGpsInputType *in, AthrillGpsOutputType *o
 	double lon = (d -
 	                d3 / 6 * (1 + 2 * p_tan2 + c) +
 	                d5 / 120 * (5 - 2 * c + 28 * p_tan2 - 3 * c2 + 8 * GPS_CONST_E_P2 + 24 * p_tan4)) / p_cos;
-
 	out->latitude = lat * 180.0 / M_PI;
-	out->longtitude = lon * 180.0 / M_PI;
+	out->longitude = lon * 180.0 / M_PI;
+    if (UTMZoneId > 0)
+    {
+        out->longitude += (UTMZoneId - 1) * 6 - 180 + 3;
+    }
 	return;
 }
 

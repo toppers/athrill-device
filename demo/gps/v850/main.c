@@ -29,8 +29,8 @@ int main(void)
 {
 	volatile double *easting = (double*)GPS_DEV_ADDR;
 	volatile double *northing = (double*)(GPS_DEV_ADDR + 8);
-	*easting = 500.0;
-	*northing = 1500.0;
+	*easting = 387203.042L;
+	*northing = 3953623.327L;
 	register_interrupt_handler(SERIAL_FIFO_RX_INTNO(0), athrill_serial_intr_rx0);
 	register_interrupt_handler(SERIAL_FIFO_TX_INTNO(0), athrill_serial_intr_tx0);
 	while (TRUE) {
