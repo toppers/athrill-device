@@ -2,15 +2,16 @@
 #define _DRIVER_OSDEP_H_
 
 #include "driver_types.h"
+#include "v850_ins.h"
 
 static inline void driver_os_lock(void)
 {
-	//TODO
+	disable_int_all();
 	return;
 }
 static inline void driver_os_unlock(void)
 {
-	//TODO
+	enable_int_all();
 	return;
 }
 
