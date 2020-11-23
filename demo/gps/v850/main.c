@@ -24,6 +24,7 @@ static void athrill_serial_intr_tx0(void)
 }
 #define GPS_DEV_ADDR	0xFF200000
 static char buffer[128];
+
 int main(void)
 {
 	volatile double *easting = (double*)GPS_DEV_ADDR;
@@ -35,7 +36,7 @@ int main(void)
 	while (TRUE) {
 		int len = athrill_serial_readline(0, buffer, sizeof(buffer));
 		buffer[len + 1] = '\0';
-		athrill_serial_send(0, buffer);
+		test_print(buffer);
 		do_halt();
 	}
 	return 0;
