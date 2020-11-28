@@ -2,5 +2,5 @@ ROM, 0x00000000, 512
 RAM, 0x03FF7000, 512
 RAM, 0x05FF7000, 512
 DEV,  0xFF100000, /mnt/c/Users/kanet/project/toppers/athrill-device/device/gps/gps.so
-MMAP, 0xFF200000, gps.bin
+MMAP, 0xFF200000, /mnt/c/Users/kanet/project/toppers/hakoniwa-Unity-HackEV/work/simulator/ev3rt-athrill-v850e2m/sdk/workspace/line_trace/unity_mmap.bin
 RAM,  0xFF300000, 4

@@ -25,9 +25,16 @@ static AthrillGpsOutputType *athrill_gps_output;
 static uint32 athrill_gpsdev_addr;
 static AthrillExDevOperationType *athrill_ex_devop;
 static uint32 serial_channel;
-static int UTMZoneId = 54;
 static AthrillSerialFifoType *serial;
 static void athrill_gps_convert(AthrillGpsInputType *in, AthrillGpsOutputType *out);
+
+typedef struct {
+	int			zone_id;
+	double		easting;
+	double		northing;
+} AthrillGpsBasePosType;
+static AthrillGpsBasePosType athrill_gps_base_pos;
+static MpuAddressRegionType *my_region;
 
 /**************************************
  * START: external symbols
@@ -46,30 +53,55 @@ MpuAddressRegionOperationType	ex_device_memory_operation = {
 
 		.get_pointer	= gps_get_pointer,
 };
-void ex_device_init(AthrillExDevOperationType *athrill_ops)
+void ex_device_init(MpuAddressRegionType *region, AthrillExDevOperationType *athrill_ops)
 {
 	Std_ReturnType err;
 	athrill_ex_devop = athrill_ops;
+	my_region = region;
 	err = athrill_ex_devop->param.get_devcfg_value_hex("DEBUG_FUNC_GPS_DEVADDR", &athrill_gpsdev_addr);
 	if (err != STD_E_OK) {
 		printf("ERROR: can not find paramter DEBUG_FUNC_GPS_DEVADDR\n");
 		return;
 	}
+	err = athrill_ex_devop->param.get_devcfg_value("DEVICE_CONFIG_GPS_ZONE_ID", (uint32 *)&athrill_gps_base_pos.zone_id);
+	if (err != STD_E_OK) {
+		printf("ERROR: can not find paramter DEVICE_CONFIG_GPS_ZONE_ID\n");
+		return;
+	}
+	printf("DEVICE_CONFIG_GPS_ZONE_ID=%d\n", athrill_gps_base_pos.zone_id);
+	char *strp;
+	err = athrill_ex_devop->param.get_devcfg_string("DEVICE_CONFIG_GPS_BASE_EASTING", &strp);
+	if (err != STD_E_OK) {
+		printf("ERROR: can not find paramter DEVICE_CONFIG_GPS_BASE_EASTING\n");
+		return;
+	}
+	athrill_gps_base_pos.easting = strtod(strp, NULL);
+
+	err = athrill_ex_devop->param.get_devcfg_string("DEVICE_CONFIG_GPS_BASE_NORTHING", &strp);
+	if (err != STD_E_OK) {
+		printf("ERROR: can not find paramter DEVICE_CONFIG_GPS_BASE_NORTHING\n");
+		return;
+	}
+	athrill_gps_base_pos.northing = strtod(strp, NULL);
 	err = athrill_ex_devop->param.get_devcfg_value("DEBUG_FUNC_GPS_SERIAL_CH", &serial_channel);
 	if (err != STD_E_OK) {
 		printf("ERROR: can not find paramter DEBUG_FUNC_GPS_SERIAL_CH\n");
 		return;
 	}
+	printf("DEVICE_CONFIG_GPS_BASE_EASTING=%lf\n", athrill_gps_base_pos.easting);
+	printf("DEVICE_CONFIG_GPS_BASE_NORTHING=%lf\n", athrill_gps_base_pos.northing);
 
 	err = athrill_ex_devop->dev.get_memory(athrill_gpsdev_addr, (uint8**)&athrill_gps_input);
 	if (err != STD_E_OK) {
 		printf("ERROR: can not find memory addr=0x%x\n", athrill_gpsdev_addr);
 		return;
 	}
-	athrill_gps_output = (AthrillGpsOutputType*)(((uint8*)athrill_gps_input) + 16U);
-
-
-	printf("###INFO gps device addr=0x%x.\n", athrill_gpsdev_addr);
+	err = athrill_ex_devop->dev.get_memory(my_region->start, (uint8**)&athrill_gps_output);
+	if (err != STD_E_OK) {
+		printf("ERROR: can not find memory addr=0x%x\n", athrill_gpsdev_addr);
+		return;
+	}
+	printf("###INFO gps device input addr=0x%x output addr=0x%x.\n", athrill_gpsdev_addr, my_region->start);
 	return;
 }
 static char output_buffer[1024];
@@ -90,7 +122,9 @@ void ex_device_supply_clock(DeviceClockType *dev_clock)
 				//printf("latitude=%lf longtitude=%lf\n", athrill_gps_output->latitude, athrill_gps_output->longtitude);
 				uint32 len = snprintf(output_buffer, sizeof(output_buffer), "$GPRMC:%ld,A,%lf,N,%lf,W\n", t, athrill_gps_output->latitude, athrill_gps_output->longitude);
 				uint32 res;
-				(void)athrill_ex_devop->libs.fifo.add(&serial->rd, output_buffer, len, &res);
+				if ((serial->rd.max_size - serial->rd.count) >= len) {
+					(void)athrill_ex_devop->libs.fifo.add(&serial->rd, output_buffer, len, &res);
+				}
 			}
 			prev_t = t;
 		}
@@ -103,8 +137,8 @@ void ex_device_supply_clock(DeviceClockType *dev_clock)
  **************************************/
 static void athrill_gps_convert(AthrillGpsInputType *in, AthrillGpsOutputType *out)
 {
-	double x = in->easting - 500000L;
-	double y = in->northing;
+	double x = in->easting  + athrill_gps_base_pos.easting- 500000L;
+	double y = in->northing + athrill_gps_base_pos.northing;
 	double m = y / GPS_CONST_K0;
 	double mu = m / (GPS_CONST_R * GPS_CONST_M1);
 
@@ -149,9 +183,8 @@ static void athrill_gps_convert(AthrillGpsInputType *in, AthrillGpsOutputType *o
 	                d5 / 120 * (5 - 2 * c + 28 * p_tan2 - 3 * c2 + 8 * GPS_CONST_E_P2 + 24 * p_tan4)) / p_cos;
 	out->latitude = lat * 180.0 / M_PI;
 	out->longitude = lon * 180.0 / M_PI;
-    if (UTMZoneId > 0)
-    {
-        out->longitude += (UTMZoneId - 1) * 6 - 180 + 3;
+    if (athrill_gps_base_pos.zone_id > 0) {
+    	out->longitude += (athrill_gps_base_pos.zone_id - 1) * 6 - 180 + 3;
     }
 	return;
 }

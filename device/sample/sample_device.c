@@ -28,7 +28,7 @@ MpuAddressRegionOperationType	ex_device_memory_operation = {
 		.get_pointer	= ex_sampledev_get_pointer,
 };
 static AthrillExDevOperationType *athrill_ex_devop;
-void ex_device_init(AthrillExDevOperationType *athrill_ops)
+void ex_device_init(MpuAddressRegionType *region, AthrillExDevOperationType *athrill_ops)
 {
 	athrill_ex_devop = athrill_ops;
 	printf("###INFO sample device init success.\n");
