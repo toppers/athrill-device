@@ -10,13 +10,8 @@ static Std_ReturnType ex_sampledev_put_data16(MpuAddressRegionType *region, Core
 static Std_ReturnType ex_sampledev_put_data32(MpuAddressRegionType *region, CoreIdType core_id, uint32 addr, uint32 data);
 static Std_ReturnType ex_sampledev_get_pointer(MpuAddressRegionType *region, CoreIdType core_id, uint32 addr, uint8 **data);
 
-/**************************************
- * START: external symbols
- **************************************/
-int ex_device_memory_size = 2; /* KB */
-char ex_device_memory_data[2048];
 
-MpuAddressRegionOperationType	ex_device_memory_operation = {
+static MpuAddressRegionOperationType	ex_device_memory_operation = {
 		.get_data8 		= 	ex_sampledev_get_data8,
 		.get_data16		=	ex_sampledev_get_data16,
 		.get_data32		=	ex_sampledev_get_data32,
@@ -28,21 +23,35 @@ MpuAddressRegionOperationType	ex_device_memory_operation = {
 		.get_pointer	= ex_sampledev_get_pointer,
 };
 static AthrillExDevOperationType *athrill_ex_devop;
-void ex_device_init(MpuAddressRegionType *region, AthrillExDevOperationType *athrill_ops)
+static void ex_device_init(MpuAddressRegionType *region, AthrillExDevOperationType *athrill_ops)
 {
 	athrill_ex_devop = athrill_ops;
 	printf("###INFO sample device init success.\n");
 	return;
 }
 
-void ex_device_supply_clock(DeviceClockType *dev_clock)
+static void ex_device_supply_clock(DeviceClockType *dev_clock)
 {
 	if (dev_clock->clock == 10000) {
 		printf("OK! sample device supply clock is good. clocks=%lld\n", dev_clock->clock);
 	}
 	return;
 }
+#define EX_DEVICE_MEMORY_SIZE	2U /* KB */
+static char ex_device_memory_data[EX_DEVICE_MEMORY_SIZE * 1024];
 
+/**************************************
+ * START: external symbols
+ **************************************/
+AthrillExDeviceType athrill_ex_device = {
+		.header.magicno = ATHRILL_EXTERNAL_DEVICE_MAGICNO,
+		.header.version = ATHRILL_EXTERNAL_DEVICE_VERSION,
+		.header.memory_size = EX_DEVICE_MEMORY_SIZE, /* KB */
+		.datap = ex_device_memory_data,
+		.ops = &ex_device_memory_operation,
+		.devinit = ex_device_init,
+		.supply_clock = ex_device_supply_clock,
+};
 /**************************************
  * END: external symbols
  **************************************/

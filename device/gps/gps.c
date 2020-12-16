@@ -36,13 +36,10 @@ typedef struct {
 static AthrillGpsBasePosType athrill_gps_base_pos;
 static MpuAddressRegionType *my_region;
 
-/**************************************
- * START: external symbols
- **************************************/
-int ex_device_memory_size = 1; /* KB */
-char ex_device_memory_data[1024];
+#define EX_DEVICE_MEMORY_SIZE 1U
+static char ex_device_memory_data[EX_DEVICE_MEMORY_SIZE * 1024];
 
-MpuAddressRegionOperationType	ex_device_memory_operation = {
+static MpuAddressRegionOperationType	ex_device_memory_operation = {
 		.get_data8 		= 	gps_get_data8,
 		.get_data16		=	gps_get_data16,
 		.get_data32		=	gps_get_data32,
@@ -53,7 +50,7 @@ MpuAddressRegionOperationType	ex_device_memory_operation = {
 
 		.get_pointer	= gps_get_pointer,
 };
-void ex_device_init(MpuAddressRegionType *region, AthrillExDevOperationType *athrill_ops)
+static void ex_device_init(MpuAddressRegionType *region, AthrillExDevOperationType *athrill_ops)
 {
 	Std_ReturnType err;
 	athrill_ex_devop = athrill_ops;
@@ -106,7 +103,7 @@ void ex_device_init(MpuAddressRegionType *region, AthrillExDevOperationType *ath
 }
 static char output_buffer[1024];
 
-void ex_device_supply_clock(DeviceClockType *dev_clock)
+static void ex_device_supply_clock(DeviceClockType *dev_clock)
 {
 	if ((dev_clock->clock % 10000) == 0) {
 		time_t t = time(NULL);
@@ -132,6 +129,18 @@ void ex_device_supply_clock(DeviceClockType *dev_clock)
 	return;
 }
 
+/**************************************
+ * START: external symbols
+ **************************************/
+AthrillExDeviceType athrill_ex_device = {
+		.header.magicno = ATHRILL_EXTERNAL_DEVICE_MAGICNO,
+		.header.version = ATHRILL_EXTERNAL_DEVICE_VERSION,
+		.header.memory_size = EX_DEVICE_MEMORY_SIZE, /* KB */
+		.datap = ex_device_memory_data,
+		.ops = &ex_device_memory_operation,
+		.devinit = ex_device_init,
+		.supply_clock = ex_device_supply_clock,
+};
 /**************************************
  * END: external symbols
  **************************************/
