@@ -10,9 +10,25 @@
 
 unsigned char stack_data[STACK_SIZE] __attribute__ ((section(".bss_noclr")));
 
+#define SAMPLE_DEV_ADDR	((volatile char*)0xFF100000)
 int main(void)
 {
+	volatile char *p = SAMPLE_DEV_ADDR;
+
+	p[0] = 'H';
+	p[1] = 'e';
+	p[2] = 'l';
+	p[3] = 'l';
+	p[4] = 'o';
+	p[5] = ' ';
+	p[6] = 'W';
+	p[7] = 'o';
+	p[8] = 'r';
+	p[9] = 'l';
+	p[10] = 'd';
+	p[11] = '\n';
 	while (TRUE) {
+		test_print((const char*)SAMPLE_DEV_ADDR);
 		do_halt();
 	}
 	return 0;

@@ -26,14 +26,14 @@ static AthrillExDevOperationType *athrill_ex_devop;
 static void ex_device_init(MpuAddressRegionType *region, AthrillExDevOperationType *athrill_ops)
 {
 	athrill_ex_devop = athrill_ops;
-	printf("###INFO sample device init success.\n");
+	printf("SAMPLE_DEVICE: init\n");
 	return;
 }
 
 static void ex_device_supply_clock(DeviceClockType *dev_clock)
 {
 	if (dev_clock->clock == 10000) {
-		printf("OK! sample device supply clock is good. clocks=%lld\n", dev_clock->clock);
+		printf("SAMPLE_DEVICE: Hello World!\n");
 	}
 	return;
 }
@@ -79,6 +79,7 @@ static Std_ReturnType ex_sampledev_put_data8(MpuAddressRegionType *region, CoreI
 {
 	uint32 off = (addr - region->start);
 	*((uint8*)(&region->data[off])) = data;
+	printf("SAMPLE_DEVICE: put8() addr=0x%x data=0x%x(%c)\n", addr, data, data);
 	return STD_E_OK;
 }
 static Std_ReturnType ex_sampledev_put_data16(MpuAddressRegionType *region, CoreIdType core_id, uint32 addr, uint16 data)
