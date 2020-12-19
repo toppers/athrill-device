@@ -16,6 +16,14 @@ static void ex_device_init(MpuAddressRegionType *region, AthrillExDevOperationTy
 #define EX_DEVICE_MEMORY_SIZE		(1024U)
 static char ex_device_memory_data[EX_DEVICE_MEMORY_SIZE * 1024];
 
+static MpuAddressRegionOperationType	ev3com_memory_operation;
+
+static void (*device_supply_clock_ev3com_fn) (DeviceClockType *dev_clock);
+static void device_supply_clock_ev3com(DeviceClockType *dev_clock)
+{
+	device_supply_clock_ev3com_fn(dev_clock);
+	return;
+}
 /**************************************
  * START: external symbols
  **************************************/
@@ -24,9 +32,9 @@ AthrillExDeviceType athrill_ex_device = {
 		.header.version = ATHRILL_EXTERNAL_DEVICE_VERSION,
 		.header.memory_size = EX_DEVICE_MEMORY_SIZE, /* KB */
 		.datap = ex_device_memory_data,
-		.ops = &ev3com_mmap_memory_operation,
+		.ops = &ev3com_memory_operation,
 		.devinit = ex_device_init,
-		.supply_clock = device_supply_clock_ev3com_mmap,
+		.supply_clock = device_supply_clock_ev3com,
 };
 /**************************************
  * END: external symbols
@@ -41,13 +49,13 @@ static void device_init_ev3com(MpuAddressRegionType *region, Ev3ComIoOperationTy
 	(void)athrill_ex_devop->param.get_devcfg_value("DEVICE_CONFIG_TIMER_FD", &ev3com_control.cpu_freq);
 
 	if (op_type == Ev3ComIoOperation_UDP) {
-		athrill_ex_device.ops = &ev3com_udp_memory_operation;
-		athrill_ex_device.supply_clock = device_supply_clock_ev3com_udp;
+		ev3com_memory_operation = ev3com_udp_memory_operation;
+		device_supply_clock_ev3com_fn = device_supply_clock_ev3com_udp;
 		device_init_ev3com_udp(region);
 	}
 	else if (op_type == Ev3ComIoOperation_MMAP) {
-		athrill_ex_device.ops = &ev3com_mmap_memory_operation;
-		athrill_ex_device.supply_clock = device_supply_clock_ev3com_mmap;
+		ev3com_memory_operation = ev3com_mmap_memory_operation;
+		device_supply_clock_ev3com_fn = device_supply_clock_ev3com_mmap;
 		device_init_ev3com_mmap(region);
 	}
 	else {
