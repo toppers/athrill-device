@@ -24,9 +24,9 @@ AthrillExDeviceType athrill_ex_device = {
 		.header.version = ATHRILL_EXTERNAL_DEVICE_VERSION,
 		.header.memory_size = EX_DEVICE_MEMORY_SIZE, /* KB */
 		.datap = ex_device_memory_data,
-		.ops = NULL,
+		.ops = &ev3com_mmap_memory_operation,
 		.devinit = ex_device_init,
-		.supply_clock = NULL,
+		.supply_clock = device_supply_clock_ev3com_mmap,
 };
 /**************************************
  * END: external symbols
@@ -63,7 +63,7 @@ static void ex_device_init(MpuAddressRegionType *region, AthrillExDevOperationTy
 	if (enable != 0) {
 		char *sync_type;
 		Ev3ComIoOperationType op_type = Ev3ComIoOperation_UDP;
-		if (athrill_ex_devop->param.get_devcfg_string("DEBUG_FUNC_VDEV_SIMSYNC_TYPE", &sync_type) == STD_E_OK) {
+		if (athrill_ex_devop->param.get_devcfg_string("DEBUG_FUNC_EV3COM_SIMSYNC_TYPE", &sync_type) == STD_E_OK) {
 			if (strncmp(sync_type, "MMAP", 4) == 0) {
 				op_type = Ev3ComIoOperation_MMAP;
 			}
