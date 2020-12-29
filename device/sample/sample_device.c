@@ -1,4 +1,5 @@
 #include "athrill_exdev.h"
+#include "greeting.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -33,7 +34,8 @@ static void ex_device_init(MpuAddressRegionType *region, AthrillExDevOperationTy
 static void ex_device_supply_clock(DeviceClockType *dev_clock)
 {
 	if (dev_clock->clock == 10000) {
-		printf("SAMPLE_DEVICE: Hello World!\n");
+		//printf("SAMPLE_DEVICE: Hello World!\n");
+		greeting("SAMPLE_DEVICE:");
 	}
 	return;
 }

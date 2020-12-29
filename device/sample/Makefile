@@ -16,7 +16,7 @@ CFLAGS	+= $(IFLAGS)
 VPATH	:= .
 
 $(TARGET): $(OBJS)
-	$(GCC) $(DLFLAGS)  -o $(TARGET) $(OBJS)
+	$(LINK) $(DLFLAGS)  -o $(TARGET) $(OBJS)
 
 
 clean:
