@@ -34,8 +34,11 @@ static void ex_device_init(MpuAddressRegionType *region, AthrillExDevOperationTy
 static void ex_device_supply_clock(DeviceClockType *dev_clock)
 {
 	if (dev_clock->clock == 10000) {
-		//printf("SAMPLE_DEVICE: Hello World!\n");
-		greeting("SAMPLE_DEVICE:");
+#ifndef CXX_SAMPLE
+		printf("SAMPLE_DEVICE: Hello World!\n");
+#else
+		greeting("SAMPLE_DEVICE: ");
+#endif
 	}
 	return;
 }

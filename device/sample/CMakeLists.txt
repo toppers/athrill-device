@@ -22,5 +22,6 @@ include_directories("${CORE_DIR}/lib")
 
 add_compile_definitions(OS_LINUX)
 add_compile_definitions(ATHRILL_EXT_DEVICE)
+add_compile_definitions(CXX_SAMPLE)
 
 add_library(devsample SHARED sample_device.c greeting.cc)
