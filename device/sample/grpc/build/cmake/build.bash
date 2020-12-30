@@ -1,5 +1,7 @@
 #!/bin/bash
 
+OPENSSL_PATH=/usr/local/opt/openssl
+
 if [ $# -ne 1 ]
 then
 	echo "$0 {all|clean}"
@@ -8,7 +10,7 @@ fi
 
 if [ $1 = "all" ]
 then
-	cmake ../..
+	cmake ../.. -DOPENSSL_ROOT_DIR=${OPENSSL_PATH}
 	make
 else
 	rm -rf ./CMakeFiles
