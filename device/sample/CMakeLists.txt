@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.5.1)
 
+add_compile_options(-fPIC)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fpic")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpic")
+
 add_subdirectory(grpc)
 
 project(Sample C CXX)
@@ -7,7 +11,6 @@ project(Sample C CXX)
 add_compile_options(-g)
 add_compile_options(-Wall)
 add_compile_options(-Wunknown-pragmas)
-add_compile_options(-Wimplicit-int)
 add_compile_options(-Wtrigraphs)
 
 set(CMAKE_C_FLAGS "-std=gnu99")
@@ -27,5 +30,6 @@ add_compile_definitions(ATHRILL_EXT_DEVICE)
 add_compile_definitions(CXX_SAMPLE)
 
 add_library(devsample SHARED sample_device.c greeting.cc)
+target_compile_options(devsample PRIVATE -fPIC)
 target_link_libraries(devsample sample_client)
 
