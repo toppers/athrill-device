@@ -11,10 +11,10 @@ void greeting_init(void)
     return;
 }
 
-void greeting(const char* strp)
+void greeting(const char* strp, unsigned long long clock)
 {
     string str = strp;
     cout << str + "Hello world from tmori." << endl;
-    sample_client_request(NULL);
+    sample_client_request(NULL, clock);
     return;
 }

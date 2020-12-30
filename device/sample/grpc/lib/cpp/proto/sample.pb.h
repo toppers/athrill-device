@@ -182,6 +182,7 @@ class SampleRequest PROTOBUF_FINAL :
 
   enum : int {
     kNameFieldNumber = 1,
+    kClockFieldNumber = 2,
   };
   // string name = 1;
   void clear_name();
@@ -199,6 +200,15 @@ class SampleRequest PROTOBUF_FINAL :
   std::string* _internal_mutable_name();
   public:
 
+  // uint64 clock = 2;
+  void clear_clock();
+  ::PROTOBUF_NAMESPACE_ID::uint64 clock() const;
+  void set_clock(::PROTOBUF_NAMESPACE_ID::uint64 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint64 _internal_clock() const;
+  void _internal_set_clock(::PROTOBUF_NAMESPACE_ID::uint64 value);
+  public:
+
   // @@protoc_insertion_point(class_scope:example.SampleRequest)
  private:
   class _Internal;
@@ -207,6 +217,7 @@ class SampleRequest PROTOBUF_FINAL :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr name_;
+  ::PROTOBUF_NAMESPACE_ID::uint64 clock_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_proto_2fsample_2eproto;
 };
@@ -441,6 +452,26 @@ inline void SampleRequest::set_allocated_name(std::string* name) {
   name_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), name,
       GetArena());
   // @@protoc_insertion_point(field_set_allocated:example.SampleRequest.name)
+}
+
+// uint64 clock = 2;
+inline void SampleRequest::clear_clock() {
+  clock_ = PROTOBUF_ULONGLONG(0);
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint64 SampleRequest::_internal_clock() const {
+  return clock_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint64 SampleRequest::clock() const {
+  // @@protoc_insertion_point(field_get:example.SampleRequest.clock)
+  return _internal_clock();
+}
+inline void SampleRequest::_internal_set_clock(::PROTOBUF_NAMESPACE_ID::uint64 value) {
+  
+  clock_ = value;
+}
+inline void SampleRequest::set_clock(::PROTOBUF_NAMESPACE_ID::uint64 value) {
+  _internal_set_clock(value);
+  // @@protoc_insertion_point(field_set:example.SampleRequest.clock)
 }
 
 // -------------------------------------------------------------------

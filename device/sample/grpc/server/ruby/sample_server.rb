@@ -9,7 +9,7 @@ require 'sample_services_pb'
 class SampleServer < Example::SampleService::Service
   # say_hello implements the SayHello rpc method.
   def request(req, _unused_call)
-    p "GET data" + req.name
+    p sprintf("name=%s clock=%d", req.name, req.clock)
     Example::SampleReply.new(message: "Hello #{req.name}", ercd: "324")
   end
 end

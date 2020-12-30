@@ -41,7 +41,7 @@ static void ex_device_supply_clock(DeviceClockType *dev_clock)
 #ifndef CXX_SAMPLE
 		printf("SAMPLE_DEVICE: Hello World!\n");
 #else
-		greeting("SAMPLE_DEVICE: ");
+		greeting("SAMPLE_DEVICE: ", dev_clock->clock);
 #endif
 	}
 	return;

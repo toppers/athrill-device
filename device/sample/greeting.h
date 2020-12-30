@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 extern void greeting_init(void);
-extern void greeting(const char* strp);
+extern void greeting(const char* strp, unsigned long long clock);
 
 #ifdef __cplusplus
 }

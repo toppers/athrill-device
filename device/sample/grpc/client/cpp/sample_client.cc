@@ -39,10 +39,11 @@ class SampleClient {
 
   // Assembles the client's payload, sends it and presents the response back
   // from the server.
-  std::string Request(const std::string& user) {
+  std::string Request(const std::string& user, unsigned long long clock) {
     // Data we are sending to the server.
     SampleRequest request;
     request.set_name(user);
+    request.set_clock(clock);
 
     // Container for the data we expect from the server.
     SampleReply reply;
@@ -88,10 +89,10 @@ void sample_client_init(void)
   return;
 }
 
-void sample_client_request(const char* strp)
+void sample_client_request(const char* strp, unsigned long long clock)
 {
   std::string user("world");
-  std::string reply = gl_client->Request(user);
+  std::string reply = gl_client->Request(user, clock);
   std::cout << "Client received: " << reply << std::endl;
   return;
 }

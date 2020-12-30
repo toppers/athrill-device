@@ -61,6 +61,7 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_proto_2fsample_2eproto::offset
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   PROTOBUF_FIELD_OFFSET(::example::SampleRequest, name_),
+  PROTOBUF_FIELD_OFFSET(::example::SampleRequest, clock_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::example::SampleReply, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -71,7 +72,7 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_proto_2fsample_2eproto::offset
 };
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, sizeof(::example::SampleRequest)},
-  { 6, -1, sizeof(::example::SampleReply)},
+  { 7, -1, sizeof(::example::SampleReply)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -80,12 +81,13 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
 };
 
 const char descriptor_table_protodef_proto_2fsample_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
-  "\n\022proto/sample.proto\022\007example\"\035\n\rSampleR"
-  "equest\022\014\n\004name\030\001 \001(\t\",\n\013SampleReply\022\017\n\007m"
-  "essage\030\001 \001(\t\022\014\n\004ercd\030\002 \001(\t2J\n\rSampleServ"
-  "ice\0229\n\007Request\022\026.example.SampleRequest\032\024"
-  ".example.SampleReply\"\000B/\n\030io.grpc.exampl"
-  "es.exampleB\013SampleProtoP\001\242\002\003HLWb\006proto3"
+  "\n\022proto/sample.proto\022\007example\",\n\rSampleR"
+  "equest\022\014\n\004name\030\001 \001(\t\022\r\n\005clock\030\002 \001(\004\",\n\013S"
+  "ampleReply\022\017\n\007message\030\001 \001(\t\022\014\n\004ercd\030\002 \001("
+  "\t2J\n\rSampleService\0229\n\007Request\022\026.example."
+  "SampleRequest\032\024.example.SampleReply\"\000B/\n"
+  "\030io.grpc.examples.exampleB\013SampleProtoP\001"
+  "\242\002\003HLWb\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_proto_2fsample_2eproto_deps[1] = {
 };
@@ -95,7 +97,7 @@ static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_pro
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_proto_2fsample_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_proto_2fsample_2eproto = {
-  false, false, descriptor_table_protodef_proto_2fsample_2eproto, "proto/sample.proto", 239,
+  false, false, descriptor_table_protodef_proto_2fsample_2eproto, "proto/sample.proto", 254,
   &descriptor_table_proto_2fsample_2eproto_once, descriptor_table_proto_2fsample_2eproto_sccs, descriptor_table_proto_2fsample_2eproto_deps, 2, 0,
   schemas, file_default_instances, TableStruct_proto_2fsample_2eproto::offsets,
   file_level_metadata_proto_2fsample_2eproto, 2, file_level_enum_descriptors_proto_2fsample_2eproto, file_level_service_descriptors_proto_2fsample_2eproto,
@@ -125,12 +127,14 @@ SampleRequest::SampleRequest(const SampleRequest& from)
     name_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_name(), 
       GetArena());
   }
+  clock_ = from.clock_;
   // @@protoc_insertion_point(copy_constructor:example.SampleRequest)
 }
 
 void SampleRequest::SharedCtor() {
   ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_SampleRequest_proto_2fsample_2eproto.base);
   name_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  clock_ = PROTOBUF_ULONGLONG(0);
 }
 
 SampleRequest::~SampleRequest() {
@@ -166,6 +170,7 @@ void SampleRequest::Clear() {
   (void) cached_has_bits;
 
   name_.ClearToEmpty();
+  clock_ = PROTOBUF_ULONGLONG(0);
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -182,6 +187,13 @@ const char* SampleRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
           auto str = _internal_mutable_name();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "example.SampleRequest.name"));
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // uint64 clock = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
+          clock_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -223,6 +235,12 @@ failure:
         1, this->_internal_name(), target);
   }
 
+  // uint64 clock = 2;
+  if (this->clock() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt64ToArray(2, this->_internal_clock(), target);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
@@ -244,6 +262,13 @@ size_t SampleRequest::ByteSizeLong() const {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->_internal_name());
+  }
+
+  // uint64 clock = 2;
+  if (this->clock() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64Size(
+        this->_internal_clock());
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -280,6 +305,9 @@ void SampleRequest::MergeFrom(const SampleRequest& from) {
   if (from.name().size() > 0) {
     _internal_set_name(from._internal_name());
   }
+  if (from.clock() != 0) {
+    _internal_set_clock(from._internal_clock());
+  }
 }
 
 void SampleRequest::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
@@ -304,6 +332,7 @@ void SampleRequest::InternalSwap(SampleRequest* other) {
   using std::swap;
   _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
   name_.Swap(&other->name_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  swap(clock_, other->clock_);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata SampleRequest::GetMetadata() const {

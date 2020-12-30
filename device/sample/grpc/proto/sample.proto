@@ -30,6 +30,7 @@ service SampleService {
 // The request message containing the user's name.
 message SampleRequest {
   string name = 1;
+  uint64 clock = 2;
 }
 
 // The response message containing the greetings
