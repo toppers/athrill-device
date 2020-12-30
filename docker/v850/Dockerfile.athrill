@@ -1,0 +1,52 @@
+FROM ubuntu:18.04 as athrill-device-v850-builder
+
+ARG DEBIAN_FRONTEND=noninteractive
+
+ENV CMAKE_INSTALL_DIR /local
+ENV PATH $PATH:/grpc/cmake/build
+ENV PATH $PATH:/grpc/cmake/build/third_party/protobuf
+ENV PATH $PATH:$CMAKE_INSTALL_DIR/bin
+
+RUN apt-get update && apt-get install -y \
+	git	\
+	build-essential	\
+	wget	\
+	gcc	\
+	g++	\
+	vim	\
+	libssl-dev \
+	make	\
+	autoconf \
+	automake \
+	pkg-config \
+	curl
+
+RUN	wget -q -O cmake-linux.sh https://github.com/Kitware/CMake/releases/download/v3.17.0/cmake-3.17.0-Linux-x86_64.sh && \
+	mkdir -p $CMAKE_INSTALL_DIR && \
+	sh cmake-linux.sh --skip-license --prefix=$CMAKE_INSTALL_DIR && \
+	rm cmake-linux.sh && \
+	# Install grpc
+	mkdir -p /root/grpc-build && \
+	cd /root/grpc-build && \
+	git clone https://github.com/grpc/grpc && \
+	cd grpc && \
+	git submodule update --init && \
+	mkdir -p cmake/build && \
+	cd cmake/build && \
+	cmake ../.. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local/grpc -DgRPC_BUILD_CSHARP_EXT=OFF -DOPENSSL_ROOT_DIR=/usr/local/boringssl -DCMAKE_PREFIX_PATH="/usr/local/cares;/usr/local/protobuf;/usr/local/zlib" && \
+	make -j4 && \
+	make install 
+
+WORKDIR /root
+RUN git clone --depth 1 https://github.com/toppers/athrill.git && \
+	git clone --depth 1 https://github.com/toppers/athrill-target-v850e2m.git && \
+	git clone --depth 1 https://github.com/toppers/athrill-device.git
+
+WORKDIR /root/athrill-target-v850e2m/build_linux
+RUN make clean && \
+	make timer32=true serial_fifo_enable=true
+
+RUN echo 'export PATH=/root/athrill/bin/linux:${PATH}' >> ~/.bashrc
+RUN mkdir workspace
+WORKDIR /root
+
