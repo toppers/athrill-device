@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.5.1)
 
+add_subdirectory(grpc)
+
 project(Sample C CXX)
 
 add_compile_options(-g)
@@ -25,3 +27,5 @@ add_compile_definitions(ATHRILL_EXT_DEVICE)
 add_compile_definitions(CXX_SAMPLE)
 
 add_library(devsample SHARED sample_device.c greeting.cc)
+target_link_libraries(devsample sample_client)
+

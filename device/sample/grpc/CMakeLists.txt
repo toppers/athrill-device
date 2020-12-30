@@ -82,7 +82,7 @@ include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 
 # Targets greeter_[async_](client|server)
 foreach(_target sample_client)
-  add_executable(${_target} "${PROJECT_SOURCE_DIR}/client/cpp/${_target}.cc"
+  add_library(${_target} STATIC "${PROJECT_SOURCE_DIR}/client/cpp/${_target}.cc"
     ${sample_proto_srcs}
     ${sample_grpc_srcs})
   target_link_libraries(${_target}

@@ -23,6 +23,7 @@
 #include <grpcpp/grpcpp.h>
 
 #include "sample.grpc.pb.h"
+#include "sample_client.h"
 
 using grpc::Channel;
 using grpc::ClientContext;
@@ -66,38 +67,31 @@ class SampleClient {
  private:
   std::unique_ptr<SampleService::Stub> stub_;
 };
-
-int main(int argc, char** argv) {
-  // Instantiate the client. It requires a channel, out of which the actual RPCs
-  // are created. This channel models a connection to an endpoint specified by
-  // the argument "--target=" which is the only expected argument.
-  // We indicate that the channel isn't authenticated (use of
-  // InsecureChannelCredentials()).
-  std::string target_str;
-  std::string arg_str("--target");
-  if (argc > 1) {
-    std::string arg_val = argv[1];
-    size_t start_pos = arg_val.find(arg_str);
-    if (start_pos != std::string::npos) {
-      start_pos += arg_str.size();
-      if (arg_val[start_pos] == '=') {
-        target_str = arg_val.substr(start_pos + 1);
-      } else {
-        std::cout << "The only correct argument syntax is --target=" << std::endl;
-        return 0;
-      }
-    } else {
-      std::cout << "The only acceptable argument is --target=" << std::endl;
-      return 0;
-    }
-  } else {
-    target_str = "localhost:50051";
-  }
-  SampleClient client(grpc::CreateChannel(
-      target_str, grpc::InsecureChannelCredentials()));
-  std::string user("world");
-  std::string reply = client.Request(user);
-  std::cout << "Client received: " << reply << std::endl;
-
+#if 0
+int main(int argc, char** argv) 
+{
+  sample_client_init();
+  sample_client_request(NULL);
   return 0;
+}
+#endif
+
+static SampleClient *gl_client;
+
+void sample_client_init(void)
+{
+  std::string target_str;
+  target_str = "localhost:50051";
+  static SampleClient client(grpc::CreateChannel(
+      target_str, grpc::InsecureChannelCredentials()));
+  gl_client = &client;
+  return;
+}
+
+void sample_client_request(const char* strp)
+{
+  std::string user("world");
+  std::string reply = gl_client->Request(user);
+  std::cout << "Client received: " << reply << std::endl;
+  return;
 }

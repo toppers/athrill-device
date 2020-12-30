@@ -27,7 +27,11 @@ static AthrillExDevOperationType *athrill_ex_devop;
 static void ex_device_init(MpuAddressRegionType *region, AthrillExDevOperationType *athrill_ops)
 {
 	athrill_ex_devop = athrill_ops;
+#ifndef CXX_SAMPLE
 	printf("SAMPLE_DEVICE: init\n");
+#else
+	greeting_init();
+#endif
 	return;
 }
 

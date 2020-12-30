@@ -5,6 +5,7 @@
 extern "C" {
 #endif
 
+extern void greeting_init(void);
 extern void greeting(const char* strp);
 
 #ifdef __cplusplus
