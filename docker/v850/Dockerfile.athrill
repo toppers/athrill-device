@@ -1,4 +1,4 @@
-FROM ubuntu:18.04 as athrill-device-v850-builder
+FROM ubuntu:20.04 as athrill-device-v850-builder
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y \
 	wget	\
 	gcc	\
 	g++	\
+	ruby	\
 	vim	\
 	libssl-dev \
 	make	\
@@ -37,16 +38,12 @@ RUN	wget -q -O cmake-linux.sh https://github.com/Kitware/CMake/releases/download
 	make -j4 && \
 	make install 
 
-WORKDIR /root
-RUN git clone --depth 1 https://github.com/toppers/athrill.git && \
-	git clone --depth 1 https://github.com/toppers/athrill-target-v850e2m.git && \
-	git clone --depth 1 https://github.com/toppers/athrill-device.git
+RUN	gem install grpc
+RUN	gem install grpc-tools
 
-WORKDIR /root/athrill-target-v850e2m/build_linux
-RUN make clean && \
-	make timer32=true serial_fifo_enable=true
-
-RUN echo 'export PATH=/root/athrill/bin/linux:${PATH}' >> ~/.bashrc
-RUN mkdir workspace
-WORKDIR /root
+RUN mkdir /root/workspace
+WORKDIR /root/workspace
+RUN mkdir athrill
+RUN mkdir athrill-target-v850e2m
+RUN mkdir athrill-device
 
