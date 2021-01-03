@@ -54,4 +54,4 @@ RUN rm -f athrill-gcc-package.tar.gz
 RUN mkdir athrill
 RUN mkdir athrill-target-v850e2m
 RUN mkdir athrill-device
-
+COPY install-athrill.bash .
