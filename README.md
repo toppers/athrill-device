@@ -5,34 +5,35 @@ athrill device for external shared library.
 * [仮想 IoT デバイスを Athrill で作る！](https://qiita.com/kanetugu2018/items/5bf890c0945c299eb7f0)
 
 # 開発言語
-athrill-device は、基本的に C/C++ で開発することを想定しています。一方で、athrill-device は、様々な開発者に利用していただけるように、多言語対応したいと考えています。そのための対応として、[grpc](https://github.com/grpc/grpc) との連携を行えるようにしました。
+athrill-device は、基本的に C/C++ で開発することを想定しています。一方で、athrill-device は、様々な開発者に利用していただけるように、多言語対応したいと考えています。そのための対応として、[grpc](https://grpc.io) との連携を行えるようにしました。
 
-具体的には、athrill-device 側から grpc の クライアント RPC API(C++) を呼び出し、サーバー側のプログラム言語でデバイス開発を行います。サーバー側のプログラム言語は grpc がサポートしている言語が対象となりますので、以下の言語で開発できます。
+具体的には、athrill-device 側から grpc のクライアント RPC API(C++) を呼び出し、サーバー側のプログラミング言語でデバイス開発を行います。サーバー側のプログラミング言語は、例えば以下が[サポート対象の言語](https://www.grpc.io/docs/languages/)となっています。
 
 * C++
 * C#
 * Dart
 * Go
 * Java
-* Kotlin
+* Kotlin/JVM
 * Node
 * Objective-C
 * PHP
 * Python
 * Ruby
-* WebJS
-* [Elixir](https://github.com/elixir-grpc/grpc)(google公式サポートではないと思われます)
+  
+この他にも、[gRPC の GitHub Organization](https://github.com/grpc) では、Web Clients や Haskell などが公開されています。
+また、コミュニティベースとして [Elixir](https://github.com/elixir-grpc/grpc) などのプログラミング言語もサポートされています。
 
 ## grpc を利用したサンプルデバイス
 grpc を用いた単純なデバイス例として、[sampleデバイス](https://github.com/toppers/athrill-device/tree/main/device/sample) を公開しています。
 本サンプルでは、デバイスのクロック情報を grpc の RPC API の引数で渡して、サーバー側(Ruby)プログラムで参照・デバッグ出力しています。
 
 * RPC proto
- * https://github.com/toppers/athrill-device/blob/main/device/sample/grpc/proto/sample.proto
+  * https://github.com/toppers/athrill-device/blob/main/device/sample/grpc/proto/sample.proto
 * クライアント側
- * https://github.com/toppers/athrill-device/blob/main/device/sample/grpc/client/cpp/sample_client.cc
+  * https://github.com/toppers/athrill-device/blob/main/device/sample/grpc/client/cpp/sample_client.cc
 * サーバー側
- * https://github.com/toppers/athrill-device/blob/main/device/sample/grpc/server/ruby/sample_server.rb
+  * https://github.com/toppers/athrill-device/blob/main/device/sample/grpc/server/ruby/sample_server.rb
 
 grpc のインストールは若干面倒なので、Dockerファイルでインストール方法を公開しました。
 
@@ -66,7 +67,7 @@ $ bash run-athrill.bash
 * docker コンテナ上で athrill, サンプルデバイスをビルド・インストールします。
 
 ```
-# install-athrill.bash
+# bash install-athrill.bash
 # cd athrill-device/device/sample/build
 # bash build.bash all
 ```
@@ -83,10 +84,11 @@ $ docker exec -it <docker-container-id> bash
 
 ```
 # cd /root/workspace/athrill-device/demo/sample/v850
-# make clean;make
+# make clean ; make
 # athrill-run
 ```
-athrill 起動成功すると、以下の起動ログ出力後、実行待ちになります。
+
+athrill の起動に成功すると、以下の起動ログの出力後、実行待ちになります。
 
 ```
 OK: found device_config.txt
@@ -114,7 +116,7 @@ HIT break:0x0
 [NEXT> pc=0x0 vector.S 9
 ```
 
-この状態で、c コマンドを押下すると、こうなります。
+この状態で、c コマンドを押下すると、次のようになります。
 
 * クライアント側
 
@@ -148,4 +150,4 @@ Hello World
 
 # 変更履歴
 * 2021/01/03
-  * grpc 連携し、athrillデバイスをgrpcサポート言語で開発できるようになりました
+  * grpc 連携に対応し、athrillデバイスをgrpcサポート言語で開発できるようになりました
