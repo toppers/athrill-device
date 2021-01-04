@@ -18,13 +18,18 @@ then
 		cmake .. -DOPENSSL_ROOT_DIR=${OPENSSL_PATH}
 	fi
 	make
+elif [ $1 = "clean" ]
+then
+	echo "clean up"
+	rm -r ./CMakeFiles
+	rm Makefile
+	#rm sample_client*
+	#rm sample.*
+	rm CMake*
+	rm cmake*
+	rm libdev*
+	rm -r ./grpc
 else
-	rm -rf ./CMakeFiles
-	rm -f Makefile
-	rm -f sample_client*
-	rm -f sample.*
-	rm -f CMake*
-	rm -f cmake*
-	rm -f libdev*
-	rm -rf ./grpc
+	echo "$0 {all|clean}"
+	exit 1
 fi
