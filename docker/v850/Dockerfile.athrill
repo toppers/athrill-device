@@ -2,7 +2,7 @@ FROM ubuntu:20.04 as athrill-device-v850-builder
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-ENV CMAKE_INSTALL_DIR /usr/local
+ENV CMAKE_INSTALL_DIR /local
 ENV PATH $PATH:/grpc/cmake/build
 ENV PATH $PATH:/grpc/cmake/build/third_party/protobuf
 ENV PATH $PATH:$CMAKE_INSTALL_DIR/bin
