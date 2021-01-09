@@ -1,10 +1,10 @@
 # athrill-device
 athrill device for external shared library.
 
-# athrill-device 紹介記事
+## athrill-device 紹介記事
 * [仮想 IoT デバイスを Athrill で作る！](https://qiita.com/kanetugu2018/items/5bf890c0945c299eb7f0)
 
-# 開発言語
+## 開発言語
 athrill-device は、基本的に C/C++ で開発することを想定しています。一方で、athrill-device は、様々な開発者に利用していただけるように、多言語対応したいと考えています。そのための対応として、[grpc](https://grpc.io) との連携を行えるようにしました。
 
 具体的には、athrill-device 側から grpc のクライアント RPC API(C++) を呼び出し、サーバー側のプログラミング言語でデバイス開発を行います。サーバー側のプログラミング言語は、例えば以下が[サポート対象の言語](https://www.grpc.io/docs/languages/)となっています。
@@ -25,8 +25,9 @@ athrill-device は、基本的に C/C++ で開発することを想定してい�
 また、コミュニティベースとして [Elixir](https://github.com/elixir-grpc/grpc) などのプログラミング言語もサポートされています。
 
 ## grpc を利用したサンプルデバイス
-grpc を用いた単純なデバイス例として、[sampleデバイス](https://github.com/toppers/athrill-device/tree/main/device/sample) を公開しています。
-本サンプルでは、デバイスのクロック情報を grpc の RPC API の引数で渡して、サーバー側(Ruby)プログラムで参照・デバッグ出力しています。
+grpc を用いた単純なデバイス例として、Ruby と Elixir による [sampleデバイス](https://github.com/toppers/athrill-device/tree/main/device/sample) を公開しています。
+
+ここでは、デバイスのクロック情報を grpc の RPC API の引数で渡して、サーバー側(Ruby)プログラムで参照・デバッグ出力する例を説明します。（Elixir によるサンプルは[こちら](https://github.com/toppers/athrill-device/tree/main/device/sample/grpc/elixir)を参照してください）
 
 * RPC proto
   * https://github.com/toppers/athrill-device/blob/main/device/sample/grpc/proto/sample.proto
@@ -72,7 +73,7 @@ $ bash run-athrill.bash
 # bash build.bash all
 ```
 
-* 別の端末から docker コンテナに入り、ruby 側のサーバーを起動します。
+* 別の端末から docker コンテナに入り、Ruby 側のサーバーを起動します。
 
 ```
 $ docker exec -it <docker-container-id> bash
@@ -147,7 +148,8 @@ Hello World
 "name=world clock=10000"
 ```
 
-
 # 変更履歴
 * 2021/01/03
   * grpc 連携に対応し、athrillデバイスをgrpcサポート言語で開発できるようになりました
+* 2021/01/09
+  * [Elixir による grpc 連携のサンプル](https://github.com/toppers/athrill-device/tree/main/device/sample/grpc/elixir) を追加しました

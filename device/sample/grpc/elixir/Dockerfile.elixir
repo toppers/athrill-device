@@ -1,0 +1,20 @@
+# Pull Elixir environment for multi-stage build
+FROM elixir:1.11.3 as elixir-env
+
+# Use athrill-device-v850 as base image
+FROM kanetugu2015/athrill-device-v850:v1.0.0 as athrill-device-v850-builder
+COPY --from=elixir-env /usr/local /usr/local
+
+# Set LANG since elixir expects utf8.
+# https://github.com/erlef/docker-elixir/blob/596458698bd8febec1ce35aca04e86e22b0aa2c7/1.11/Dockerfile#L5
+ENV LANG=C.UTF-8
+
+# Install Elixir development environment (hex, rebar)
+RUN mix local.hex --force
+RUN mix local.rebar --force
+# Install grpc for Elixir
+RUN mix escript.install hex protobuf --force
+ENV PATH /root/.mix/escripts:${PATH}
+
+# Rewrite CMD from "iex" on Elixir official image
+CMD ["/bin/bash"]
