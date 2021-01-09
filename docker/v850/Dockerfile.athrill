@@ -20,14 +20,17 @@ RUN apt-get update && apt-get install -y \
 	autoconf \
 	automake \
 	pkg-config \
-	curl
+	curl \
+	&& apt-get clean \
+	&& rm -rf /var/lib/apt/lists/*
 
 RUN	wget -q -O cmake-linux.sh https://github.com/Kitware/CMake/releases/download/v3.17.0/cmake-3.17.0-Linux-x86_64.sh && \
 	mkdir -p $CMAKE_INSTALL_DIR && \
 	sh cmake-linux.sh --skip-license --prefix=$CMAKE_INSTALL_DIR && \
-	rm cmake-linux.sh && \
-	# Install grpc
-	mkdir -p /root/grpc-build && \
+	rm cmake-linux.sh
+
+# Install grpc
+RUN mkdir -p /root/grpc-build && \
 	cd /root/grpc-build && \
 	git clone https://github.com/grpc/grpc && \
 	cd grpc && \
@@ -36,22 +39,25 @@ RUN	wget -q -O cmake-linux.sh https://github.com/Kitware/CMake/releases/download
 	cd cmake/build && \
 	cmake ../.. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local/grpc -DgRPC_BUILD_CSHARP_EXT=OFF -DOPENSSL_ROOT_DIR=/usr/local/boringssl -DCMAKE_PREFIX_PATH="/usr/local/cares;/usr/local/protobuf;/usr/local/zlib" && \
 	make -j4 && \
-	make install 
+	make install && \
+	cd /root && \
+	rm -rf grpc-build
+ENV PATH /usr/local/grpc/bin:${PATH}
 
+# Install grpc for Ruby
 RUN	gem install grpc
 RUN	gem install grpc-tools
 
+# Install athrill development environment
 RUN mkdir /root/workspace
 WORKDIR /root/workspace
 RUN wget https://github.com/toppers/athrill-gcc-v850e2m/releases/download/v1.1/athrill-gcc-package.tar.gz 
 RUN tar xzvf athrill-gcc-package.tar.gz && \
 	cd athrill-gcc-package && \
 	tar xzvf athrill-gcc.tar.gz
-RUN echo 'export PATH=/root/workspace/athrill-gcc-package/usr/local/athrill-gcc/bin/:${PATH}' >> /root/.bashrc
-RUN echo 'export PATH=/root/workspace/athrill/bin/linux:${PATH}' >> ~/.bashrc
-WORKDIR /root/workspace
 RUN rm -f athrill-gcc-package.tar.gz
-RUN mkdir athrill
-RUN mkdir athrill-target-v850e2m
-RUN mkdir athrill-device
+ENV PATH /root/workspace/athrill-gcc-package/usr/local/athrill-gcc/bin/:${PATH}
+ENV PATH /root/workspace/athrill/bin/linux:${PATH}
+
+WORKDIR /root/workspace
 COPY install-athrill.bash .
