@@ -37,5 +37,7 @@ custom_executable(listener)
 
 include_directories(include)
 
+add_library(sample_client STATIC src/sample_client.cpp)
+ament_target_dependencies(sample_client "rclcpp")
 
 ament_package()

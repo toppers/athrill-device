@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ATHRILL_TOP_DIR=$(cd ../../.. && pwd)
+ATHRILL_TOP_DIR=$(cd ../../../.. && pwd)
 DOCKER_IMAGE=kanetugu2015/ros2-foxy:v1.0.0
 
 sudo docker run \
