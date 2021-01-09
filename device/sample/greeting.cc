@@ -1,5 +1,9 @@
 #include "greeting.h"
+#ifdef SAMPLE_ROS2
+#include "ros2/workspace/src/hello_world/include/hello_world/sample_client.h"
+#else
 #include "grpc/client/cpp/sample_client.h"
+#endif /* SAMPLE_ROS2 */
 #include <iostream>
 
 using namespace std;

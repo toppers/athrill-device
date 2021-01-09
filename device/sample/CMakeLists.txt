@@ -4,7 +4,11 @@ add_compile_options(-fPIC)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fpic")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpic")
 
-add_subdirectory(grpc)
+if (SAMPLE_ROS2)
+    add_subdirectory(ros2/workspace/src/hello_world)
+else()
+    add_subdirectory(grpc)
+endif()
 
 project(Sample C CXX)
 
