@@ -32,3 +32,4 @@ RUN export ROS_DISTRO=foxy && \
 ## 環境設定
 RUN echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> ~/.bashrc
 WORKDIR /root/workspace
+RUN mkdir -p /root/workspace/ros2
