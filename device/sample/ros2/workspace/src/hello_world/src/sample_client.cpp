@@ -2,12 +2,16 @@
 #include <cstdio>
 #include <memory>
 #include <string>
+#include <thread>
 #include <rclcpp/rclcpp.hpp>
 #include <std_msgs/msg/string.hpp>
 #include "hello_world/sample_client.h"
 
 using namespace std::chrono_literals;
 
+static bool is_ready;
+static std::condition_variable cond;
+static std::mutex mtx;
 
 class Talker : public rclcpp::Node
 {
@@ -31,26 +35,40 @@ public:
     pub_->publish(std::move(msg));
     return;
   }
-
 private:
   rclcpp::Publisher<std_msgs::msg::String>::SharedPtr pub_;
 };
 
 static std::shared_ptr<Talker> talker_node = NULL;
 
-void sample_client_init(void)
+void sample_thread(void)
 {
+  std::unique_lock<std::mutex> lockobj(mtx);
   setvbuf(stdout, NULL, _IONBF, BUFSIZ);
   rclcpp::init(0, NULL);
-
   // talkerノードの生成とスピン開始
   talker_node = std::make_shared<Talker>("chatter");
+  is_ready = true;
+  cond.notify_one();
+  lockobj.unlock();
+  
+  rclcpp::spin(talker_node);
+  rclcpp::shutdown();
+  return;
+}
 
+void sample_client_init(void)
+{
+  std::unique_lock<std::mutex> lockobj(mtx);
+  std::thread thr(sample_thread);
+  thr.detach();
+  cond.wait(lockobj, [&]{ return is_ready;});
   return;
 }
 
 void sample_client_request(const char* strp, unsigned long long clock)
 {
+  std::lock_guard<std::mutex> lockobj(mtx);
   if (strp == NULL) {
     std::string str = std::to_string(clock);
     talker_node->publish(str.c_str());
