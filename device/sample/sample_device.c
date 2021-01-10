@@ -1,5 +1,6 @@
 #include "athrill_exdev.h"
 #include "greeting.h"
+#include "athrill_priv.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -23,7 +24,7 @@ static MpuAddressRegionOperationType	ex_device_memory_operation = {
 
 		.get_pointer	= ex_sampledev_get_pointer,
 };
-static AthrillExDevOperationType *athrill_ex_devop;
+AthrillExDevOperationType *athrill_ex_devop;
 static void ex_device_init(MpuAddressRegionType *region, AthrillExDevOperationType *athrill_ops)
 {
 	athrill_ex_devop = athrill_ops;

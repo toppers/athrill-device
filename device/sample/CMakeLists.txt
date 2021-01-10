@@ -28,12 +28,17 @@ include_directories("${CORE_DIR}/bus")
 include_directories("${CORE_DIR}/device/mpu")
 include_directories("${CORE_DIR}/device/peripheral/serial/fifo")
 include_directories("${CORE_DIR}/lib")
+include_directories(../lib/include)
+include_directories(../lib/src)
 
 add_compile_definitions(OS_LINUX)
 add_compile_definitions(ATHRILL_EXT_DEVICE)
 add_compile_definitions(CXX_SAMPLE)
 
-add_library(devsample SHARED sample_device.c greeting.cc)
+add_library(devsample SHARED 
+    sample_device.c 
+    greeting.cc 
+    ../lib/src/athrill_priv.c)
 target_compile_options(devsample PRIVATE -fPIC)
 target_link_libraries(devsample sample_client)
 
