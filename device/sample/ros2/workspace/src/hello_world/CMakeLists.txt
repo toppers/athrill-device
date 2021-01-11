@@ -40,4 +40,10 @@ include_directories(include)
 add_library(sample_client STATIC src/sample_client.cpp)
 ament_target_dependencies(sample_client "rclcpp")
 
+if(ENABLE_TEST)
+    enable_testing()
+    include(test/gtest.cmake)
+    add_subdirectory(test)
+endif()
+
 ament_package()
