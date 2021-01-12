@@ -51,12 +51,11 @@ RUN	gem install grpc grpc-tools
 RUN mkdir /root/workspace
 WORKDIR /root/workspace
 RUN wget https://github.com/toppers/athrill-gcc-v850e2m/releases/download/v1.1/athrill-gcc-package.tar.gz && \
-    tar xzf athrill-gcc-package.tar.gz && \
+	tar xzf athrill-gcc-package.tar.gz && \
+	rm -f athrill-gcc-package.tar.gz && \
 	cd athrill-gcc-package && \
 	tar xzf athrill-gcc.tar.gz && \
-    rm -f athrill-gcc.tar.gz && \
-	cd ../ && \
-    rm -f athrill-gcc-package.tar.gz
+	rm -f *.tar.gz
 ENV PATH /root/workspace/athrill-gcc-package/usr/local/athrill-gcc/bin/:${PATH}
 ENV PATH /root/workspace/athrill/bin/linux:${PATH}
 
