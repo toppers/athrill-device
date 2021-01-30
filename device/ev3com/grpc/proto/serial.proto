@@ -15,26 +15,32 @@
 syntax = "proto3";
 
 option java_multiple_files = true;
-option java_package = "io.grpc.examples.example";
-option java_outer_classname = "SampleProto";
+option java_package = "io.grpc.serial";
+option java_outer_classname = "Serial";
 option objc_class_prefix = "HLW";
 
-package example;
+package serial;
 
-// The greeting service definition.
-service SampleService {
-  // Sends a greeting
-  rpc Request (SampleRequest) returns (SampleReply) {}
+service SerialService {
+  rpc PutData (SerialPutData) returns (SerialPutResult) {}
+  rpc GetData (SerialGetData) returns (SerialGetResult) {}
+}
+message SerialPutData {
+  int32  channel = 1;
+  string data = 2;
 }
 
-// The request message containing the user's name.
-message SampleRequest {
-  string name = 1;
-  uint64 clock = 2;
-}
-
-// The response message containing the greetings
-message SampleReply {
-  string message = 1;
+message SerialPutResult {
+  int32  channel = 1;
   string ercd = 2;
+}
+
+message SerialGetData {
+  int32  channel = 1;
+  int32  bufferlen = 2;
+}
+message SerialGetResult {
+  int32  channel = 1;
+  string ercd = 2;
+  string data = 3;
 }

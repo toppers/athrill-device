@@ -22,77 +22,75 @@
 
 #include <grpcpp/grpcpp.h>
 
-#include "sample.grpc.pb.h"
-#include "sample_client.h"
+#include "serial.grpc.pb.h"
+#include "serial_client.h"
 
 using grpc::Channel;
 using grpc::ClientContext;
 using grpc::Status;
-using example::SampleRequest;
-using example::SampleReply;
-using example::SampleService;
+using serial::SerialPutData;
+using serial::SerialPutResult;
+using serial::SerialGetData;
+using serial::SerialGetResult;
+using serial::SerialService;
 
-class SampleClient {
+class SerialServiceClient {
  public:
-  SampleClient(std::shared_ptr<Channel> channel)
-      : stub_(SampleService::NewStub(channel)) {}
+  SerialServiceClient(std::shared_ptr<Channel> channel)
+      : stub_(SerialService::NewStub(channel)) {}
 
-  // Assembles the client's payload, sends it and presents the response back
-  // from the server.
-  std::string Request(const std::string& user, unsigned long long clock) {
-    // Data we are sending to the server.
-    SampleRequest request;
-    request.set_name(user);
-    request.set_clock(clock);
+  ErcdType PutData(ChannelType channel, std::string indata) {
+    SerialPutData request;
+    request.set_channel(channel);
+    request.set_data(indata);
 
-    // Container for the data we expect from the server.
-    SampleReply reply;
+    SerialPutResult reply;
 
     // Context for the client. It could be used to convey extra information to
     // the server and/or tweak certain RPC behaviors.
     ClientContext context;
 
     // The actual RPC.
-    Status status = stub_->Request(&context, request, &reply);
+    Status status = stub_->PutData(&context, request, &reply);
 
     // Act upon its status.
     if (status.ok()) {
-      return reply.message();
+      return Ercd_OK;
     } else {
       std::cout << status.error_code() << ": " << status.error_message()
                 << std::endl;
-      return "RPC failed";
+      return Ercd_NG;
     }
   }
 
  private:
-  std::unique_ptr<SampleService::Stub> stub_;
+  std::unique_ptr<SerialService::Stub> stub_;
 };
 #if 0
 int main(int argc, char** argv) 
 {
-  sample_client_init();
-  sample_client_request(NULL);
+  serial_client_init();
+  serial_client_request(NULL);
   return 0;
 }
 #endif
 
-static SampleClient *gl_client;
+static SerialServiceClient *gl_client;
 
-void sample_client_init(void)
+void serial_client_init(void)
 {
   std::string target_str;
   target_str = "localhost:50051";
-  static SampleClient client(grpc::CreateChannel(
+  static SerialServiceClient client(grpc::CreateChannel(
       target_str, grpc::InsecureChannelCredentials()));
   gl_client = &client;
   return;
 }
 
-void sample_client_request(const char* strp, unsigned long long clock)
+extern ErcdType serial_client_put_data(ChannelType channel, const char* indata)
 {
-  std::string user("world");
-  std::string reply = gl_client->Request(user, clock);
-  std::cout << "Client received: " << reply << std::endl;
-  return;
+  std::string str(indata);
+  ErcdType ercd = gl_client->PutData(channel, str);
+  std::cout << "Client received: ";
+  return ercd;
 }

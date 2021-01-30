@@ -77,14 +77,33 @@ add_custom_command(
         "${sample_proto}"
       DEPENDS "${sample_proto}")
 
+
+#BLE Serial
+get_filename_component(serial_proto "./proto/serial.proto" ABSOLUTE)
+get_filename_component(serial_proto_path "${serial_proto}" PATH)
+set(serial_proto_srcs "${CMAKE_CURRENT_BINARY_DIR}/serial.pb.cc")
+set(serial_proto_hdrs "${CMAKE_CURRENT_BINARY_DIR}/serial.pb.h")
+set(serial_grpc_srcs "${CMAKE_CURRENT_BINARY_DIR}/serial.grpc.pb.cc")
+set(serial_grpc_hdrs "${CMAKE_CURRENT_BINARY_DIR}/serial.grpc.pb.h")
+add_custom_command(
+      OUTPUT "${serial_proto_srcs}" "${serial_proto_hdrs}" "${serial_grpc_srcs}" "${serial_grpc_hdrs}"
+      COMMAND ${_PROTOBUF_PROTOC}
+      ARGS --grpc_out "${CMAKE_CURRENT_BINARY_DIR}"
+        --cpp_out "${CMAKE_CURRENT_BINARY_DIR}"
+        -I "${serial_proto_path}"
+        --plugin=protoc-gen-grpc="${_GRPC_CPP_PLUGIN_EXECUTABLE}"
+        "${serial_proto}"
+      DEPENDS "${serial_proto}")
+
+
 # Include generated *.pb.h files
 include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 
 # Targets greeter_[async_](client|server)
-foreach(_target sample_client)
+foreach(_target serial_client)
   add_library(${_target} STATIC "${PROJECT_SOURCE_DIR}/client/cpp/${_target}.cc"
-    ${sample_proto_srcs}
-    ${sample_grpc_srcs})
+    ${serial_proto_srcs}
+    ${serial_grpc_srcs})
   target_link_libraries(${_target}
     ${_REFLECTION}
     ${_GRPC_GRPCPP}
