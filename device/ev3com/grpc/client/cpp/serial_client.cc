@@ -85,14 +85,6 @@ class SerialServiceClient {
  private:
   std::unique_ptr<SerialService::Stub> stub_;
 };
-#if 0
-int main(int argc, char** argv) 
-{
-  serial_client_init();
-  serial_client_request(NULL);
-  return 0;
-}
-#endif
 
 static SerialServiceClient *gl_client;
 
@@ -110,12 +102,12 @@ ErcdType serial_client_put_data(ChannelType channel, const char* indata)
 {
   std::string str(indata);
   ErcdType ercd = gl_client->PutData(channel, str);
-  std::cout << "Client PutData reply received: ";
+  std::cout << "Client PutData reply received: " << std::endl;
   return ercd;
 }
 ErcdType serial_client_get_data(ChannelType channel, char* outdata, int len)
 {
   ErcdType ercd = gl_client->GetData(channel, outdata, len);
-  std::cout << "Client GetData reply received: ";
+  std::cout << "Client GetData reply received: " << std::endl;
   return ercd;
 }

@@ -109,3 +109,9 @@ foreach(_target serial_client)
     ${_GRPC_GRPCPP}
     ${_PROTOBUF_LIBPROTOBUF})
 endforeach()
+
+add_executable(serial_client_main ${PROJECT_SOURCE_DIR}/client/cpp/serial_client_main.cc)
+target_link_libraries(serial_client_main serial_client
+    ${_REFLECTION}
+    ${_GRPC_GRPCPP}
+    ${_PROTOBUF_LIBPROTOBUF})
