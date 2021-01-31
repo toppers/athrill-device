@@ -1,6 +1,7 @@
 #include "athrill_exdev.h"
 #include "ev3com.h"
 #include "ev3com_private.h"
+#include "ev3serial.h"
 #include "std_errno.h"
 #include "assert.h"
 #include <string.h>
@@ -61,6 +62,7 @@ static void device_init_ev3com(MpuAddressRegionType *region, Ev3ComIoOperationTy
 	else {
 		ASSERT(0);
 	}
+	ev3serial_init();
 	return;
 }
 static void ex_device_init(MpuAddressRegionType *region, AthrillExDevOperationType *athrill_ops)
