@@ -9,11 +9,16 @@ require 'serial_services_pb'
 class SerialServer < Serial::SerialService::Service
 
   def put_data(req, _unused_call)
-    p sprintf("channel=%d data=%s", req.channel, req.data)
+    p sprintf("PUT:: channel=%d data=%s", req.channel, req.data)
     #puts "aaaa"
     Serial::SerialPutResult.new(channel: 1, ercd: "OK")
   end
   # TODO get_data
+  def get_data(req, _unused_call)
+    p sprintf("GET:: channel=%d", req.channel)
+
+    Serial::SerialGetResult.new(channel: 1, data: "Hello world from tmori", ercd: "OK")
+  end
 
 end
 

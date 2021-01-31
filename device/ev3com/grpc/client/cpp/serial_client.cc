@@ -108,6 +108,6 @@ ErcdType serial_client_put_data(ChannelType channel, const char* indata)
 ErcdType serial_client_get_data(ChannelType channel, char* outdata, int len)
 {
   ErcdType ercd = gl_client->GetData(channel, outdata, len);
-  std::cout << "Client GetData reply received: " << std::endl;
+  std::cout << "Client GetData reply received: " << std::string(outdata) << std::endl;
   return ercd;
 }
