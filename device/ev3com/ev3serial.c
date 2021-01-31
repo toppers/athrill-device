@@ -89,9 +89,10 @@ static Std_ReturnType tx_thread_do_proc(MpthrIdType id)
 		ev3_serial_control.txbuffer[ev3_serial_control.txbuflen] = data;
 		ev3_serial_control.txbuflen++;
 		if ( (ev3_serial_control.txbuflen >= (EV3_SERIAL_BUF_MAX_SIZE - 1)) ||
-		     ((data != '\0') && (data != '\r') && (data != '\n')) ) {
+		     ((data == '\0') || (data == '\r') || (data == '\n')) ) {
     		ev3_serial_control.txbuffer[ev3_serial_control.txbuflen] = '\0';
 
+			printf("SND:%s len=%d\n", ev3_serial_control.txbuffer, ev3_serial_control.txbuflen);
             ErcdType ercd = serial_client_put_data(ev3_serial_control.channel_id, ev3_serial_control.txbuffer);
             ASSERT(ercd == Ercd_OK);
             ev3_serial_control.txbuflen = 0;
