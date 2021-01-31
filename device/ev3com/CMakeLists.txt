@@ -35,6 +35,7 @@ add_library(ev3com SHARED
     ev3com.c 
     ev3com_mmap.c
     ev3com_udp.c
+    ev3serial.c
     ../lib/src/athrill_priv.c)
 target_compile_options(ev3com PRIVATE -fPIC)
 target_link_libraries(ev3com serial_client)

@@ -13,7 +13,7 @@ typedef enum {
     Ercd_NG
 } ErcdType;
 extern ErcdType serial_client_put_data(ChannelType channel, const char* indata);
-extern ErcdType serial_client_get_data(ChannelType channel, char* outdata, int len);
+extern ErcdType serial_client_get_data(ChannelType channel, char* outdata, int buflen, int *retlen);
 
 #ifdef __cplusplus
 }

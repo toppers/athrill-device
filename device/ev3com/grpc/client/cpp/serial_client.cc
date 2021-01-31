@@ -56,7 +56,7 @@ class SerialServiceClient {
       return Ercd_NG;
     }
   }
-  ErcdType GetData(ChannelType channel, char *outdata, int len) {
+  ErcdType GetData(ChannelType channel, char *outdata, int buflen, int *retlen) {
     SerialGetData request;
     request.set_channel(channel);
     SerialGetResult reply;
@@ -65,14 +65,16 @@ class SerialServiceClient {
     Status status = stub_->GetData(&context, request, &reply);
 
     if (status.ok()) {
-      if (len > reply.data().length()) {
+      if (buflen > reply.data().length()) {
         memcpy(outdata, reply.data().c_str(), reply.data().length());
         outdata[reply.data().length()] = '\0';
+        *retlen = reply.data().length();
       }
       else {
         std::cout << "lost data.."  << std::endl;
-        memcpy(outdata, reply.data().c_str(), (len -1));
-        outdata[len -1] = '\0';
+        memcpy(outdata, reply.data().c_str(), (buflen -1));
+        outdata[buflen -1] = '\0';
+        *retlen = buflen;
       }
       return Ercd_OK;
     } else {
@@ -105,9 +107,9 @@ ErcdType serial_client_put_data(ChannelType channel, const char* indata)
   std::cout << "Client PutData reply received: " << std::endl;
   return ercd;
 }
-ErcdType serial_client_get_data(ChannelType channel, char* outdata, int len)
+ErcdType serial_client_get_data(ChannelType channel, char* outdata, int buflen, int *retlen)
 {
-  ErcdType ercd = gl_client->GetData(channel, outdata, len);
+  ErcdType ercd = gl_client->GetData(channel, outdata, buflen, retlen);
   std::cout << "Client GetData reply received: " << std::string(outdata) << std::endl;
   return ercd;
 }
