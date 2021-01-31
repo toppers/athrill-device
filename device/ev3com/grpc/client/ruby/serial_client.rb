@@ -4,18 +4,17 @@ lib_dir = File.join(this_dir, 'lib')
 $LOAD_PATH.unshift(lib_dir) unless $LOAD_PATH.include?(lib_dir)
 
 require 'grpc'
-require 'sample_services_pb'
+require 'serial_services_pb'
 
 def main
-  user = ARGV.size > 0 ?  ARGV[0] : 'world'
+  msg = 'Hello World!!'
   hostname = ARGV.size > 1 ?  ARGV[1] : 'localhost:50051'
-  stub = Example::SampleService::Stub.new(hostname, :this_channel_is_insecure)
+  stub = Serial::SerialService::Stub.new(hostname, :this_channel_is_insecure)
   begin
-    p "Start: user=" + user
-    req = Example::SampleRequest.new(name: user)
+    req = Serial::SerialPutData.new(channel: 1, data: msg)
     p req
-    res = stub.request(req)
-    #p "Greeting:" + res
+    res = stub.put_data(req)
+
   rescue GRPC::BadStatus => e
     abort "ERROR: #{e.message}"
   end

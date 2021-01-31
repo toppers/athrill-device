@@ -43,18 +43,37 @@ class SerialServiceClient {
     SerialPutData request;
     request.set_channel(channel);
     request.set_data(indata);
-
     SerialPutResult reply;
-
-    // Context for the client. It could be used to convey extra information to
-    // the server and/or tweak certain RPC behaviors.
     ClientContext context;
 
-    // The actual RPC.
     Status status = stub_->PutData(&context, request, &reply);
 
-    // Act upon its status.
     if (status.ok()) {
+      return Ercd_OK;
+    } else {
+      std::cout << status.error_code() << ": " << status.error_message()
+                << std::endl;
+      return Ercd_NG;
+    }
+  }
+  ErcdType GetData(ChannelType channel, char *outdata, int len) {
+    SerialGetData request;
+    request.set_channel(channel);
+    SerialGetResult reply;
+    ClientContext context;
+
+    Status status = stub_->GetData(&context, request, &reply);
+
+    if (status.ok()) {
+      if (len > reply.data().length()) {
+        memcpy(outdata, reply.data().c_str(), reply.data().length());
+        outdata[reply.data().length()] = '\0';
+      }
+      else {
+        std::cout << "lost data.."  << std::endl;
+        memcpy(outdata, reply.data().c_str(), (len -1));
+        outdata[len -1] = '\0';
+      }
       return Ercd_OK;
     } else {
       std::cout << status.error_code() << ": " << status.error_message()
@@ -87,10 +106,16 @@ void serial_client_init(void)
   return;
 }
 
-extern ErcdType serial_client_put_data(ChannelType channel, const char* indata)
+ErcdType serial_client_put_data(ChannelType channel, const char* indata)
 {
   std::string str(indata);
   ErcdType ercd = gl_client->PutData(channel, str);
-  std::cout << "Client received: ";
+  std::cout << "Client PutData reply received: ";
+  return ercd;
+}
+ErcdType serial_client_get_data(ChannelType channel, char* outdata, int len)
+{
+  ErcdType ercd = gl_client->GetData(channel, outdata, len);
+  std::cout << "Client GetData reply received: ";
   return ercd;
 }

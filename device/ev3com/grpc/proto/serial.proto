@@ -37,7 +37,6 @@ message SerialPutResult {
 
 message SerialGetData {
   int32  channel = 1;
-  int32  bufferlen = 2;
 }
 message SerialGetResult {
   int32  channel = 1;
