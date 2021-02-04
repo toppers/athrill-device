@@ -36,8 +36,8 @@ typedef struct {
 static AthrillGpsBasePosType athrill_gps_base_pos;
 static MpuAddressRegionType *my_region;
 
-#define EX_DEVICE_MEMORY_SIZE 1U
-static char ex_device_memory_data[EX_DEVICE_MEMORY_SIZE * 1024];
+#define EX_DEVICE_MEMORY_SIZE 1024U
+static char ex_device_memory_data[EX_DEVICE_MEMORY_SIZE];
 
 static MpuAddressRegionOperationType	ex_device_memory_operation = {
 		.get_data8 		= 	gps_get_data8,
@@ -135,7 +135,7 @@ static void ex_device_supply_clock(DeviceClockType *dev_clock)
 AthrillExDeviceType athrill_ex_device = {
 		.header.magicno = ATHRILL_EXTERNAL_DEVICE_MAGICNO,
 		.header.version = ATHRILL_EXTERNAL_DEVICE_VERSION,
-		.header.memory_size = EX_DEVICE_MEMORY_SIZE, /* KB */
+		.header.memory_size = EX_DEVICE_MEMORY_SIZE, /* Bytes */
 		.datap = ex_device_memory_data,
 		.ops = &ex_device_memory_operation,
 		.devinit = ex_device_init,

@@ -14,8 +14,8 @@ AthrillExDevOperationType *athrill_ex_devop;
 
 static void ex_device_init(MpuAddressRegionType *region, AthrillExDevOperationType *athrill_ops);
 
-#define EX_DEVICE_MEMORY_SIZE		(1024U)
-static char ex_device_memory_data[EX_DEVICE_MEMORY_SIZE * 1024];
+#define EX_DEVICE_MEMORY_SIZE		(1024U * 1024U)
+static char ex_device_memory_data[EX_DEVICE_MEMORY_SIZE];
 
 static MpuAddressRegionOperationType	ev3com_memory_operation;
 
@@ -31,7 +31,7 @@ static void device_supply_clock_ev3com(DeviceClockType *dev_clock)
 AthrillExDeviceType athrill_ex_device = {
 		.header.magicno = ATHRILL_EXTERNAL_DEVICE_MAGICNO,
 		.header.version = ATHRILL_EXTERNAL_DEVICE_VERSION,
-		.header.memory_size = EX_DEVICE_MEMORY_SIZE, /* KB */
+		.header.memory_size = EX_DEVICE_MEMORY_SIZE, /* Bytes */
 		.datap = ex_device_memory_data,
 		.ops = &ev3com_memory_operation,
 		.devinit = ex_device_init,
