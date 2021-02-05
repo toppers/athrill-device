@@ -22,7 +22,7 @@ static MpthrOperationType	tx_thread_ops = {
 void ev3serial_init(void)
 {
     ev3_serial_control.channel_id = -1;
-	Std_ReturnType err = athrill_ex_devop->param.get_devcfg_value("DEVICE_CONFIG_EV3_SERIAL_ID", (uint32*)&ev3_serial_control.channel_id);
+	Std_ReturnType err = athrill_ex_devop->param.get_devcfg_value("DEVICE_CONFIG_EV3_CH1_SERIAL_ID", (uint32*)&ev3_serial_control.channel_id);
 	if (err != STD_E_OK) {
 		return;
 	}
