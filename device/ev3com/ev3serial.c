@@ -83,7 +83,7 @@ static int get_serial_data(uint8 *p)
 static void tx_thread_do_put(sint32 id, const char *bufp, int buflen)
 {
 	while (TRUE) {
-        ErcdType ercd = serial_client_put_data(id, bufp);
+        ErcdType ercd = serial_client_put_data(id, bufp, buflen);
 		if (ercd == Ercd_OK) {
 			break;
 		}
@@ -110,7 +110,7 @@ static Std_ReturnType tx_thread_do_proc(MpthrIdType id)
 		ev3_serial_control.txbuflen++;
 		if ( (ev3_serial_control.txbuflen >= (EV3_SERIAL_BUF_MAX_SIZE - 1)) ||
 		     ((data == '\0') || (data == '\r') || (data == '\n')) ) {
-    		ev3_serial_control.txbuffer[ev3_serial_control.txbuflen] = '\0';
+    		//ev3_serial_control.txbuffer[ev3_serial_control.txbuflen] = '\0';
 			tx_thread_do_put(ev3_serial_control.channel_id, ev3_serial_control.txbuffer, ev3_serial_control.txbuflen);
             ev3_serial_control.txbuflen = 0;
         }
@@ -153,7 +153,7 @@ static Std_ReturnType rx_thread_do_proc(MpthrIdType id)
 	        target_os_api_sleep(1000);
             continue;
         }
-        rx_put_buffer(ev3_serial_control.rxbuffer, (ev3_serial_control.rxbuflen + 1));
+        rx_put_buffer(ev3_serial_control.rxbuffer, ev3_serial_control.rxbuflen);
         target_os_api_sleep(1000);
     }
     return STD_E_OK;

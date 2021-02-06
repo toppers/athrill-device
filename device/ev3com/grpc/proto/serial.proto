@@ -28,7 +28,7 @@ service SerialService {
 }
 message SerialPutData {
   int32  channel = 1;
-  string data = 2;
+  bytes data = 2;
 }
 
 message SerialPutResult {
@@ -42,5 +42,5 @@ message SerialGetData {
 message SerialGetResult {
   int32  channel = 1;
   string ercd = 2;
-  string data = 3;
+  bytes data = 3;
 }

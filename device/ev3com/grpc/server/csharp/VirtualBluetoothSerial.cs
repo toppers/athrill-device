@@ -43,7 +43,8 @@ namespace BtSerial
         {
             if (this.out_fifo.HasWritableArea(text.Length + 1))
             {
-                this.out_fifo.Write(text);
+                string newline_text = text + "\n";
+                this.out_fifo.Write(newline_text);
                 //Console.WriteLine("WriteLine: " + text);
             }
             else

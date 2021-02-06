@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using GrpcSerial;
@@ -39,8 +40,8 @@ namespace BtSerial
         }
         public override Task<SerialPutResult> PutData(SerialPutData request, ServerCallContext context)
         {
-            //Console.WriteLine("[PUT] " + request.Data);
-            this.in_fifo.Write(request.Data);
+            //Console.WriteLine("[PUT] " + request.Data.ToStringUtf8());
+            this.in_fifo.Write(request.Data.ToByteArray());
             //Console.WriteLine("len=" + this.input_stream.Length);
 
             return Task.FromResult(new SerialPutResult
@@ -58,7 +59,7 @@ namespace BtSerial
             {
                 Channel = 1,
                 Ercd = "OK",
-                Data = data
+                Data = ByteString.CopyFrom(data, Encoding.ASCII)
             });
         }
     }

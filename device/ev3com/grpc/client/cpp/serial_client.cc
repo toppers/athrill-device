@@ -67,13 +67,13 @@ class SerialServiceClient {
     if (status.ok()) {
       if (buflen > reply.data().length()) {
         memcpy(outdata, reply.data().c_str(), reply.data().length());
-        outdata[reply.data().length()] = '\0';
+        //outdata[reply.data().length()] = '\0';
         *retlen = reply.data().length();
       }
       else {
         std::cout << "lost data.."  << std::endl;
         memcpy(outdata, reply.data().c_str(), (buflen -1));
-        outdata[buflen -1] = '\0';
+        outdata[buflen -1] = '\0'; //TODO
         *retlen = buflen;
       }
       return Ercd_OK;
@@ -99,9 +99,9 @@ void serial_client_init(const char* server)
   return;
 }
 
-ErcdType serial_client_put_data(ChannelType channel, const char* indata)
+ErcdType serial_client_put_data(ChannelType channel, const char* indata, int len)
 {
-  std::string str(indata);
+  std::string str(indata, len);
   ErcdType ercd = gl_client->PutData(channel, str);
   //std::cout << "Client PutData reply received: " << std::endl;
   return ercd;

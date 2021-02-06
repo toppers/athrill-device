@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
@@ -17,15 +18,16 @@ namespace BtSerial
             VirtualBluetoothSerial serial = new VirtualBluetoothSerial();
             serial.SetServerInfo(ipaddr, portno, 1024*1024);
             serial.Open();
-
-            serial.WriteLine("Hello");
-
-
-            Console.WriteLine("Press any key to shutdown the server...");
-            Console.ReadKey();
-            string data = serial.ReadLine();
-
-            Console.WriteLine("INPUT:" + data);
+            string data = null;
+            Console.WriteLine("start write:");
+            for (int i = 0; i < 10; i++)
+            {
+                Console.WriteLine("OUTPUT: Hello World: " + i.ToString());
+                serial.WriteLine("Hello World: " + i.ToString());
+                data = serial.ReadLine();
+                Console.WriteLine("INPUT:" + data);
+            }
+            Console.WriteLine("end write:");
 
             serial.Close();
         }

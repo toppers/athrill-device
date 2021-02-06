@@ -78,13 +78,15 @@ namespace BtSerial
         public int Write(string data)
         {
             byte[] buf = System.Text.Encoding.ASCII.GetBytes(data);
-            byte[] cpy_buf = new byte[buf.Length + 1];
+            byte[] cpy_buf = new byte[buf.Length];
             int i;
             for (i = 0; i < buf.Length; i++)
             {
                 cpy_buf[i] = buf[i];
+                //Console.WriteLine("Write: char=" + cpy_buf[i].ToString());
             }
-            cpy_buf[buf.Length] = (byte)'\0';
+            //cpy_buf[buf.Length] = (byte)'\0';
+            //Console.WriteLine("WriteE: char=" + cpy_buf[i].ToString());
             return this.Write(cpy_buf);
         }
 
@@ -131,6 +133,7 @@ namespace BtSerial
                     {
                         byte c = this.Read();
                         if ((c == '\0') || (c == '\n') || (c == '\r'))
+                        //if ((c == '\0'))
                         {
                             need_loop = false;
                         }
