@@ -13,21 +13,32 @@ namespace BtSerial
         {
             string ipaddr = "172.25.0.1";
             int portno = 50051;
+            int buffer_size = 1024 * 1024; /* 1MB */
             Console.WriteLine("ipaddr=" + ipaddr + " portno=" + portno.ToString());
 
             VirtualBluetoothSerial serial = new VirtualBluetoothSerial();
-            serial.SetServerInfo(ipaddr, portno, 1024*1024);
+            serial.SetServerInfo(ipaddr, portno, buffer_size);
             serial.Open();
             string data = null;
-            Console.WriteLine("start write:");
-            for (int i = 0; i < 10; i++)
+            Console.WriteLine("START BT TEST>>>>");
+            for (int i = 1; i <= 10; i++)
             {
-                Console.WriteLine("OUTPUT: Hello World: " + i.ToString());
-                serial.WriteLine("Hello World: " + i.ToString());
-                data = serial.ReadLine();
-                Console.WriteLine("INPUT:" + data);
+                data = "Hello World[ " + i.ToString() + " / 10 ]";
+                Console.WriteLine("SEND DATA:  " + data);
+                serial.WriteLine(data);
+                string rcv_data = serial.ReadLine().Trim();
+                Console.WriteLine("RECV DATA:  " + rcv_data);
+
+                if (data.Equals(rcv_data))
+                {
+                    Console.WriteLine("TEST PASSED [ " + i.ToString() + " ]");
+                }
+                else
+                {
+                    Console.WriteLine("TEST FAILED [ " + i.ToString() + " ]");
+                }
             }
-            Console.WriteLine("end write:");
+            Console.WriteLine("<<<<END BT TEST");
 
             serial.Close();
         }
