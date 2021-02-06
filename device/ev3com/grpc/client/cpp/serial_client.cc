@@ -90,10 +90,9 @@ class SerialServiceClient {
 
 static SerialServiceClient *gl_client;
 
-void serial_client_init(void)
+void serial_client_init(const char* server)
 {
-  std::string target_str;
-  target_str = "localhost:50051";
+  std::string target_str(server);
   static SerialServiceClient client(grpc::CreateChannel(
       target_str, grpc::InsecureChannelCredentials()));
   gl_client = &client;

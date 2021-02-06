@@ -6,7 +6,7 @@
 extern "C" {
 #endif
 
-extern void serial_client_init(void);
+extern void serial_client_init(const char* server);
 typedef int ChannelType;
 typedef enum {
     Ercd_OK = 0,
