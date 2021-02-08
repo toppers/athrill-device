@@ -14,11 +14,11 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-	<Protobuf Include="Protos\*.proto" SerialService="Both" />
+	<Protobuf Include="..\..\proto\*.proto" SerialService="Both" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="Protos\serial.proto" />
+    <None Remove="..\..\proto\serial.proto" />
   </ItemGroup>
 
 </Project>
