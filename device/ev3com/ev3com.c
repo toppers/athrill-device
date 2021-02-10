@@ -62,7 +62,9 @@ static void device_init_ev3com(MpuAddressRegionType *region, Ev3ComIoOperationTy
 	else {
 		ASSERT(0);
 	}
+#ifndef NOUSE_BT
 	ev3serial_init();
+#endif /* NOUSE_BT */
 	return;
 }
 static void ex_device_init(MpuAddressRegionType *region, AthrillExDevOperationType *athrill_ops)

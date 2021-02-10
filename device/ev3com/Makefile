@@ -12,6 +12,7 @@ IFLAGS	+= -I$(CORE_DIR)/bus
 IFLAGS	+= -I$(CORE_DIR)/device/mpu
 IFLAGS	+= -I$(CORE_DIR)/device/peripheral/serial/fifo
 IFLAGS	+= -I$(CORE_DIR)/lib
+DFLAGS  += -D NOUSE_BT
 
 CFLAGS	:= $(WFLAGS)
 CFLAGS	+= $(IFLAGS)
