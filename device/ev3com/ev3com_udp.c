@@ -154,10 +154,12 @@ void device_supply_clock_ev3com_udp(DeviceClockType *dev_clock)
 	unity_sim_time = ev3com_control.vdev_sim_time[EV3COM_SIM_INX_YOU] * ((uint64)ev3com_control.cpu_freq);
 
 	ev3com_control.vdev_sim_time[EV3COM_SIM_INX_ME] = ( dev_clock->clock / ((uint64)ev3com_control.cpu_freq) );
-
-	if ((unity_sim_time != 0) && (dev_clock->min_intr_interval != DEVICE_CLOCK_MAX_INTERVAL)) {
+	if (unity_sim_time == 0) {
+		dev_clock->min_intr_interval = 1U;
+	}
+	else if (dev_clock->min_intr_interval != DEVICE_CLOCK_MAX_INTERVAL) {
 		if ((unity_sim_time <= dev_clock->clock)) {
-			interval = 2U;
+			interval = 1U;
 			//printf("UNITY <= MICON:%llu %llu\n", ev3com_control.ev3com_sim_time[EV3COM_SIM_INX_YOU], ev3com_control.ev3com_sim_time[EV3COM_SIM_INX_ME]);
 		}
 		else {
