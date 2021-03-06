@@ -88,7 +88,9 @@ static void ev3com_simtime_sync_flush(void)
 }
 void ev3com_udp_cleanup(void)
 {
-	ev3com_simtime_sync_flush();
+	if (ev3com_simtime_sync_filepath != NULL) {
+		ev3com_simtime_sync_flush();
+	}
 	return;
 }
 
@@ -138,7 +140,9 @@ void device_init_ev3com_udp(MpuAddressRegionType *region)
 
 	(void)athrill_ex_devop->param.get_devcfg_string("DEBUG_FUNC_EV3COM_TIMESYNC_FPATH", &ev3com_simtime_sync_filepath);
 	(void)athrill_ex_devop->param.get_devcfg_value("DEBUG_FUNC_EV3COM_TIMESYNC_LINENUM", (uint32*)&ev3com_simtime_sync_linenum);
-	ev3com_simtime_sync_init();
+	if (ev3com_simtime_sync_filepath != NULL) {
+		ev3com_simtime_sync_init();
+	}
 
 	ev3com_control.remote_ipaddr = "127.0.0.1";
 	(void)athrill_ex_devop->param.get_devcfg_string("DEBUG_FUNC_EV3COM_TX_IPADDR", &ev3com_control.remote_ipaddr);
@@ -283,7 +287,9 @@ static Std_ReturnType ev3com_thread_do_proc(MpthrIdType id)
 		//unity_interval_vtime = curr_stime - ev3com_udp_control.ev3com_sim_time[EV3COM_SIM_INX_YOU];
 		//ev3com_calc_predicted_virtual_time(ev3com_udp_control.ev3com_sim_time[EV3COM_SIM_INX_YOU], curr_stime);
 		ev3com_control.vdev_sim_time[EV3COM_SIM_INX_YOU] = curr_stime;
-		ev3com_simtime_sync_write(ev3com_control.vdev_sim_time[EV3COM_SIM_INX_YOU], ev3com_control.vdev_sim_time[EV3COM_SIM_INX_ME]);
+		if (ev3com_simtime_sync_filepath != NULL) {
+			ev3com_simtime_sync_write(ev3com_control.vdev_sim_time[EV3COM_SIM_INX_YOU], ev3com_control.vdev_sim_time[EV3COM_SIM_INX_ME]);
+		}
 	}
 	return STD_E_OK;
 
