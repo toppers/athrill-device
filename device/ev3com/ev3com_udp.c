@@ -3,6 +3,9 @@
 #include "assert.h"
 #include <stdio.h>
 #include <time.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 static Std_ReturnType ev3com_udp_get_data8(MpuAddressRegionType *region, CoreIdType core_id, uint32 addr, uint8 *data);
 static Std_ReturnType ev3com_udp_get_data16(MpuAddressRegionType *region, CoreIdType core_id, uint32 addr, uint16 *data);
@@ -35,6 +38,59 @@ static Std_ReturnType ev3com_send_thread_do_proc(MpthrIdType id);
 static uint32 enable_complemental_send = 0; // defaule false
 static uint32 reset_area_off = 0;
 static uint32 reset_area_size  = 0; 
+static char* ev3com_simtime_sync_filepath = NULL;
+static uint32 ev3com_simtime_sync_linenum = 10240;
+
+typedef struct {
+	uint64 unity_simtime; /* usec */
+	uint64 athrill_simtime; /* usec */
+} Ev3ComSimTimeSynDataType;
+typedef struct {
+	int fd;
+	Ev3ComSimTimeSynDataType *bufferp;
+	int current_line;
+	int max_line;
+} Ev3ComSimTimeSyncFileType;
+static Ev3ComSimTimeSyncFileType ev3com_simtime_sync_file;
+static void ev3com_simtime_sync_init(void)
+{
+	ev3com_simtime_sync_file.bufferp = malloc(ev3com_simtime_sync_linenum * sizeof(Ev3ComSimTimeSynDataType));
+	ASSERT(ev3com_simtime_sync_file.bufferp != NULL);
+	ev3com_simtime_sync_file.current_line = 0;
+	ev3com_simtime_sync_file.max_line = ev3com_simtime_sync_linenum;
+	ev3com_simtime_sync_file.fd = open(ev3com_simtime_sync_filepath, O_CREAT|O_TRUNC|O_RDWR, 0644);
+	ASSERT(ev3com_simtime_sync_file.fd >= 0);
+	return;
+}
+
+static void ev3com_simtime_sync_write(uint64 unity_time, uint64 athrill_time)
+{
+	if (ev3com_simtime_sync_file.current_line >= ev3com_simtime_sync_file.max_line) {
+		return;
+	}
+	ev3com_simtime_sync_file.bufferp[ev3com_simtime_sync_file.current_line].unity_simtime = unity_time;
+	ev3com_simtime_sync_file.bufferp[ev3com_simtime_sync_file.current_line].athrill_simtime = athrill_time;
+	ev3com_simtime_sync_file.current_line++;
+	return;
+}
+static void ev3com_simtime_sync_flush(void)
+{
+	int i;
+	dprintf(ev3com_simtime_sync_file.fd, "unity, athrill\n");
+	for (i = 0; i < ev3com_simtime_sync_file.current_line; i++) {
+		dprintf(ev3com_simtime_sync_file.fd, "%lf, %lf,\n", 
+				((double)ev3com_simtime_sync_file.bufferp[i].unity_simtime)/((double)1000000),
+				((double)ev3com_simtime_sync_file.bufferp[i].athrill_simtime)/((double)1000000) );
+	}
+	close(ev3com_simtime_sync_file.fd);
+	ev3com_simtime_sync_file.fd = -1;
+	return;
+}
+void ev3com_udp_cleanup(void)
+{
+	ev3com_simtime_sync_flush();
+	return;
+}
 
 static MpthrOperationType ev3com_op = {
 	.do_init = ev3com_thread_do_init,
@@ -79,6 +135,10 @@ void device_init_ev3com_udp(MpuAddressRegionType *region)
 {
 	Std_ReturnType err;
 	uint32 portno;
+
+	(void)athrill_ex_devop->param.get_devcfg_string("DEBUG_FUNC_EV3COM_TIMESYNC_FPATH", &ev3com_simtime_sync_filepath);
+	(void)athrill_ex_devop->param.get_devcfg_value("DEBUG_FUNC_EV3COM_TIMESYNC_LINENUM", (uint32*)&ev3com_simtime_sync_linenum);
+	ev3com_simtime_sync_init();
 
 	ev3com_control.remote_ipaddr = "127.0.0.1";
 	(void)athrill_ex_devop->param.get_devcfg_string("DEBUG_FUNC_EV3COM_TX_IPADDR", &ev3com_control.remote_ipaddr);
@@ -223,6 +283,7 @@ static Std_ReturnType ev3com_thread_do_proc(MpthrIdType id)
 		//unity_interval_vtime = curr_stime - ev3com_udp_control.ev3com_sim_time[EV3COM_SIM_INX_YOU];
 		//ev3com_calc_predicted_virtual_time(ev3com_udp_control.ev3com_sim_time[EV3COM_SIM_INX_YOU], curr_stime);
 		ev3com_control.vdev_sim_time[EV3COM_SIM_INX_YOU] = curr_stime;
+		ev3com_simtime_sync_write(ev3com_control.vdev_sim_time[EV3COM_SIM_INX_YOU], ev3com_control.vdev_sim_time[EV3COM_SIM_INX_ME]);
 	}
 	return STD_E_OK;
 
@@ -339,3 +400,5 @@ static Std_ReturnType ev3com_udp_get_pointer(MpuAddressRegionType *region, CoreI
 	*data = &region->data[off];
 	return STD_E_OK;
 }
+
+

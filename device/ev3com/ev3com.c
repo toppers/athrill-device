@@ -25,6 +25,11 @@ static void device_supply_clock_ev3com(DeviceClockType *dev_clock)
 	device_supply_clock_ev3com_fn(dev_clock);
 	return;
 }
+static void ex_device_cleanup(void)
+{
+	ev3com_udp_cleanup();
+	return;
+}
 /**************************************
  * START: external symbols
  **************************************/
@@ -36,6 +41,7 @@ AthrillExDeviceType athrill_ex_device = {
 		.ops = &ev3com_memory_operation,
 		.devinit = ex_device_init,
 		.supply_clock = device_supply_clock_ev3com,
+		.cleanup = ex_device_cleanup,
 };
 /**************************************
  * END: external symbols

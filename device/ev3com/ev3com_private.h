@@ -39,6 +39,7 @@ extern AthrillExDevOperationType *athrill_ex_devop;
  */
 extern void device_init_ev3com_udp(MpuAddressRegionType *region);
 extern void device_supply_clock_ev3com_udp(DeviceClockType *dev_clock);
+extern void ev3com_udp_cleanup(void);
 extern MpuAddressRegionOperationType	ev3com_udp_memory_operation;
 
 
