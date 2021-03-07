@@ -41,9 +41,29 @@ static uint32 reset_area_size  = 0;
 static char* ev3com_simtime_sync_filepath = NULL;
 static uint32 ev3com_simtime_sync_linenum = 10240;
 
+#define COLOR_NUM	8
+static char *color_name[COLOR_NUM] = {
+	"NONE",
+	"BLACK",
+	"BLUE",
+	"GREEN",
+	"YELLOW",
+	"RED",
+	"WHITE",
+	"BROWN",
+};
+
 typedef struct {
 	uint64 unity_simtime; /* usec */
 	uint64 athrill_simtime; /* usec */
+	float64 pos_x;
+	float64 pos_y;
+	uint32 color;
+	uint32 reflect;
+	uint32 ultrasonic;
+	uint32 motor_angle_a;
+	uint32 motor_angle_b;
+	uint32 padding;
 } Ev3ComSimTimeSynDataType;
 typedef struct {
 	int fd;
@@ -70,17 +90,49 @@ static void ev3com_simtime_sync_write(uint64 unity_time, uint64 athrill_time)
 	}
 	ev3com_simtime_sync_file.bufferp[ev3com_simtime_sync_file.current_line].unity_simtime = unity_time;
 	ev3com_simtime_sync_file.bufferp[ev3com_simtime_sync_file.current_line].athrill_simtime = athrill_time;
+	//double* data_double = (double*)&ev3com_control.comm.read_data.buffer[EV3COM_RX_DATA_BODY_OFF + 480];
+	//ev3com_simtime_sync_file.bufferp[ev3com_simtime_sync_file.current_line].pos_x = *data_double;
+	//data_double = (double*)&ev3com_control.comm.read_data.buffer[EV3COM_RX_DATA_BODY_OFF + 488];
+	//ev3com_simtime_sync_file.bufferp[ev3com_simtime_sync_file.current_line].pos_y = *data_double;
+	memcpy((void*)&ev3com_simtime_sync_file.bufferp[ev3com_simtime_sync_file.current_line].pos_x, 
+		&ev3com_control.comm.read_data.buffer[EV3COM_RX_DATA_BODY_OFF + 480], 8U);
+	memcpy((void*)&ev3com_simtime_sync_file.bufferp[ev3com_simtime_sync_file.current_line].pos_y, 
+		&ev3com_control.comm.read_data.buffer[EV3COM_RX_DATA_BODY_OFF + 488], 8U);
+
+
+	uint32 *data = (uint32*)&ev3com_control.comm.read_data.buffer[EV3COM_RX_DATA_BODY_OFF + 8];
+	ev3com_simtime_sync_file.bufferp[ev3com_simtime_sync_file.current_line].color = *data;
+
+	data = (uint32*)&ev3com_control.comm.read_data.buffer[EV3COM_RX_DATA_BODY_OFF + 12];
+	ev3com_simtime_sync_file.bufferp[ev3com_simtime_sync_file.current_line].reflect = *data;
+
+	data = (uint32*)&ev3com_control.comm.read_data.buffer[EV3COM_RX_DATA_BODY_OFF + 88];
+	ev3com_simtime_sync_file.bufferp[ev3com_simtime_sync_file.current_line].ultrasonic = *data;
+
+	data = (uint32*)&ev3com_control.comm.read_data.buffer[EV3COM_RX_DATA_BODY_OFF + 256];
+	ev3com_simtime_sync_file.bufferp[ev3com_simtime_sync_file.current_line].motor_angle_a = *data;
+
+	data = (uint32*)&ev3com_control.comm.read_data.buffer[EV3COM_RX_DATA_BODY_OFF + 260];
+	ev3com_simtime_sync_file.bufferp[ev3com_simtime_sync_file.current_line].motor_angle_b = *data;
 	ev3com_simtime_sync_file.current_line++;
 	return;
 }
 static void ev3com_simtime_sync_flush(void)
 {
 	int i;
-	dprintf(ev3com_simtime_sync_file.fd, "unity, athrill\n");
+	dprintf(ev3com_simtime_sync_file.fd, "unity, athrill,color,pos_x,pos_y,reflect,ultrasonic,motor_angle_a,motor_angle_b\n");
 	for (i = 0; i < ev3com_simtime_sync_file.current_line; i++) {
-		dprintf(ev3com_simtime_sync_file.fd, "%lf, %lf,\n", 
+		dprintf(ev3com_simtime_sync_file.fd, "%lf, %lf,%s,%lf,%lf,%u,%u,%u,%u\n", 
 				((double)ev3com_simtime_sync_file.bufferp[i].unity_simtime)/((double)1000000),
-				((double)ev3com_simtime_sync_file.bufferp[i].athrill_simtime)/((double)1000000) );
+				((double)ev3com_simtime_sync_file.bufferp[i].athrill_simtime)/((double)1000000),
+				color_name[ev3com_simtime_sync_file.bufferp[i].color],
+				ev3com_simtime_sync_file.bufferp[i].pos_x,
+				ev3com_simtime_sync_file.bufferp[i].pos_y,
+				ev3com_simtime_sync_file.bufferp[i].reflect,
+				ev3com_simtime_sync_file.bufferp[i].ultrasonic,
+				ev3com_simtime_sync_file.bufferp[i].motor_angle_a,
+				ev3com_simtime_sync_file.bufferp[i].motor_angle_b
+				);
 	}
 	close(ev3com_simtime_sync_file.fd);
 	ev3com_simtime_sync_file.fd = -1;
