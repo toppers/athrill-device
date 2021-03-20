@@ -54,6 +54,7 @@ static char *color_name[COLOR_NUM] = {
 };
 
 typedef struct {
+	uint64 host_time; /* usec */
 	uint64 unity_simtime; /* usec */
 	uint64 athrill_simtime; /* usec */
 	float64 pos_x;
@@ -88,6 +89,9 @@ static void ev3com_simtime_sync_write(uint64 unity_time, uint64 athrill_time)
 	if (ev3com_simtime_sync_file.current_line >= ev3com_simtime_sync_file.max_line) {
 		return;
 	}
+	struct timespec tv;
+	clock_gettime(CLOCK_REALTIME, &tv);
+	ev3com_simtime_sync_file.bufferp[ev3com_simtime_sync_file.current_line].host_time = (tv.tv_sec*1000000) + tv.tv_nsec/1000;
 	ev3com_simtime_sync_file.bufferp[ev3com_simtime_sync_file.current_line].unity_simtime = unity_time;
 	ev3com_simtime_sync_file.bufferp[ev3com_simtime_sync_file.current_line].athrill_simtime = athrill_time;
 	//double* data_double = (double*)&ev3com_control.comm.read_data.buffer[EV3COM_RX_DATA_BODY_OFF + 480];
@@ -120,9 +124,10 @@ static void ev3com_simtime_sync_write(uint64 unity_time, uint64 athrill_time)
 static void ev3com_simtime_sync_flush(void)
 {
 	int i;
-	dprintf(ev3com_simtime_sync_file.fd, "unity, athrill,color,pos_x,pos_y,reflect,ultrasonic,motor_angle_a,motor_angle_b\n");
+	dprintf(ev3com_simtime_sync_file.fd, "host, unity, athrill,color,pos_x,pos_y,reflect,ultrasonic,motor_angle_a,motor_angle_b\n");
 	for (i = 0; i < ev3com_simtime_sync_file.current_line; i++) {
-		dprintf(ev3com_simtime_sync_file.fd, "%lf, %lf,%s,%lf,%lf,%u,%u,%u,%u\n", 
+		dprintf(ev3com_simtime_sync_file.fd, "%lld, %lf, %lf,%s,%lf,%lf,%u,%u,%u,%u\n", 
+				ev3com_simtime_sync_file.bufferp[i].host_time,
 				((double)ev3com_simtime_sync_file.bufferp[i].unity_simtime)/((double)1000000),
 				((double)ev3com_simtime_sync_file.bufferp[i].athrill_simtime)/((double)1000000),
 				color_name[ev3com_simtime_sync_file.bufferp[i].color],
