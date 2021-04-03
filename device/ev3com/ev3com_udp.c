@@ -94,29 +94,25 @@ static void ev3com_simtime_sync_write(uint64 unity_time, uint64 athrill_time)
 	ev3com_simtime_sync_file.bufferp[ev3com_simtime_sync_file.current_line].host_time = (tv.tv_sec*1000000) + tv.tv_nsec/1000;
 	ev3com_simtime_sync_file.bufferp[ev3com_simtime_sync_file.current_line].unity_simtime = unity_time;
 	ev3com_simtime_sync_file.bufferp[ev3com_simtime_sync_file.current_line].athrill_simtime = athrill_time;
-	//double* data_double = (double*)&ev3com_control.comm.read_data.buffer[EV3COM_RX_DATA_BODY_OFF + 480];
-	//ev3com_simtime_sync_file.bufferp[ev3com_simtime_sync_file.current_line].pos_x = *data_double;
-	//data_double = (double*)&ev3com_control.comm.read_data.buffer[EV3COM_RX_DATA_BODY_OFF + 488];
-	//ev3com_simtime_sync_file.bufferp[ev3com_simtime_sync_file.current_line].pos_y = *data_double;
 	memcpy((void*)&ev3com_simtime_sync_file.bufferp[ev3com_simtime_sync_file.current_line].pos_x, 
-		&ev3com_control.comm.read_data.buffer[EV3COM_RX_DATA_BODY_OFF + 480], 8U);
+		&ev3com_control.rx_memory[EV3COM_RX_DATA_BODY_OFF + 480], 8U);
 	memcpy((void*)&ev3com_simtime_sync_file.bufferp[ev3com_simtime_sync_file.current_line].pos_y, 
-		&ev3com_control.comm.read_data.buffer[EV3COM_RX_DATA_BODY_OFF + 488], 8U);
+		&ev3com_control.rx_memory[EV3COM_RX_DATA_BODY_OFF + 488], 8U);
 
 
-	uint32 *data = (uint32*)&ev3com_control.comm.read_data.buffer[EV3COM_RX_DATA_BODY_OFF + 8];
+	uint32 *data = (uint32*)&ev3com_control.rx_memory[EV3COM_RX_DATA_BODY_OFF + 8];
 	ev3com_simtime_sync_file.bufferp[ev3com_simtime_sync_file.current_line].color = *data;
 
-	data = (uint32*)&ev3com_control.comm.read_data.buffer[EV3COM_RX_DATA_BODY_OFF + 12];
+	data = (uint32*)&ev3com_control.rx_memory[EV3COM_RX_DATA_BODY_OFF + 12];
 	ev3com_simtime_sync_file.bufferp[ev3com_simtime_sync_file.current_line].reflect = *data;
 
-	data = (uint32*)&ev3com_control.comm.read_data.buffer[EV3COM_RX_DATA_BODY_OFF + 88];
+	data = (uint32*)&ev3com_control.rx_memory[EV3COM_RX_DATA_BODY_OFF + 88];
 	ev3com_simtime_sync_file.bufferp[ev3com_simtime_sync_file.current_line].ultrasonic = *data;
 
-	data = (uint32*)&ev3com_control.comm.read_data.buffer[EV3COM_RX_DATA_BODY_OFF + 256];
+	data = (uint32*)&ev3com_control.rx_memory[EV3COM_RX_DATA_BODY_OFF + 256];
 	ev3com_simtime_sync_file.bufferp[ev3com_simtime_sync_file.current_line].motor_angle_a = *data;
 
-	data = (uint32*)&ev3com_control.comm.read_data.buffer[EV3COM_RX_DATA_BODY_OFF + 260];
+	data = (uint32*)&ev3com_control.rx_memory[EV3COM_RX_DATA_BODY_OFF + 260];
 	ev3com_simtime_sync_file.bufferp[ev3com_simtime_sync_file.current_line].motor_angle_b = *data;
 	ev3com_simtime_sync_file.current_line++;
 	return;
@@ -188,17 +184,41 @@ static void unlock_send_mutex(void)
 		athrill_ex_devop->libs.thread.unlock(ev3com_send_thrid);
 	}
 }
+static Std_ReturnType ev3com_remote_read(void);
+static Std_ReturnType ev3com_remote_write(void);
 
+#ifdef EV3COM_LEGACY
+#define ev3com_remote_read_protobuf ev3com_remote_read
+#define ev3com_remote_write_protobuf ev3com_remote_write
+#else
+#include "grpc/client/cpp/ev3packet.h"
+static Std_ReturnType ev3com_remote_read_protobuf(void);
+static Std_ReturnType ev3com_remote_write_protobuf(void);
+#endif
+
+
+static Std_ReturnType (*ev3com_write) (void);
+static Std_ReturnType (*ev3com_read) (void);
 
 void device_init_ev3com_udp(MpuAddressRegionType *region)
 {
 	Std_ReturnType err;
 	uint32 portno;
+	uint32 enable_protobuf = 0;
 
 	(void)athrill_ex_devop->param.get_devcfg_string("DEBUG_FUNC_EV3COM_TIMESYNC_FPATH", &ev3com_simtime_sync_filepath);
 	(void)athrill_ex_devop->param.get_devcfg_value("DEBUG_FUNC_EV3COM_TIMESYNC_LINENUM", (uint32*)&ev3com_simtime_sync_linenum);
 	if (ev3com_simtime_sync_filepath != NULL) {
 		ev3com_simtime_sync_init();
+	}
+	(void)athrill_ex_devop->param.get_devcfg_value("DEBUG_FUNC_EV3COM_ENABLE_PROTOBUF", &enable_protobuf);
+	if (enable_protobuf != 0) {
+		ev3com_read = ev3com_remote_read_protobuf;
+		ev3com_write = ev3com_remote_write_protobuf;
+	}
+	else {
+		ev3com_read = ev3com_remote_read;
+		ev3com_write = ev3com_remote_write;
 	}
 
 	ev3com_control.remote_ipaddr = "127.0.0.1";
@@ -226,13 +246,12 @@ void device_init_ev3com_udp(MpuAddressRegionType *region)
 	ASSERT(err == STD_E_OK);
 	//initialize udp write buffer header
 	{
-		Ev3ComTxDataHeadType *tx_headp = (Ev3ComTxDataHeadType*)&ev3com_control.comm.write_data.buffer[0];
+		Ev3ComTxDataHeadType *tx_headp = (Ev3ComTxDataHeadType*)&ev3com_control.tx_memory[0];
 		memset((void*)tx_headp, 0, EV3COM_TX_DATA_HEAD_SIZE);
 		memcpy((void*)tx_headp->header, EV3COM_TX_DATA_HEAD_HEADER, strlen(EV3COM_TX_DATA_HEAD_HEADER));
 		tx_headp->version = EV3COM_TX_DATA_HEAD_VERSION;
 		tx_headp->ext_off = EV3COM_TX_DATA_HEAD_EXT_OFF;
 		tx_headp->ext_size = EV3COM_TX_DATA_HEAD_EXT_SIZE;
-		ev3com_control.comm.write_data.len = EV3COM_TX_DATA_COMM_SIZE;
 	}
 
 	err = athrill_ex_devop->libs.thread.thr_register(&ev3com_thrid, &ev3com_op);
@@ -303,7 +322,7 @@ static Std_ReturnType ev3com_thread_do_init(MpthrIdType id)
 
 static Std_ReturnType ev3com_udp_packet_check(const char *p)
 {
-	const uint32 *p_int = (const uint32 *)&ev3com_control.comm.read_data.buffer[0];
+	const uint32 *p_int = (const uint32 *)&ev3com_control.rx_memory[0];
 	if (strncmp(p, EV3COM_RX_DATA_HEAD_HEADER, 4) != 0) {
 		printf("ERROR: INVALID HEADER:%c%c%c%c\n", p[0], p[1], p[2], p[3]);
 		return STD_E_INVALID;
@@ -322,7 +341,61 @@ static Std_ReturnType ev3com_udp_packet_check(const char *p)
 	}
 	return STD_E_OK;
 }
+static Std_ReturnType ev3com_remote_read(void)
+{
+	Std_ReturnType err;
+	err = athrill_ex_devop->libs.udp.read(&ev3com_control.comm);
+	if (err != STD_E_OK) {
+		return err;
+	}
+	memcpy(ev3com_control.rx_memory, ev3com_control.comm.read_data.buffer, ev3com_control.comm.read_data.len);
+	return STD_E_OK;
+}
+static Std_ReturnType ev3com_remote_write(void)
+{
+	Std_ReturnType err;
+    ev3com_control.comm.write_data.len = EV3COM_TX_DATA_COMM_SIZE;
+	memcpy(ev3com_control.comm.write_data.buffer, ev3com_control.tx_memory, sizeof(ev3com_control.tx_memory));
+	err = athrill_ex_devop->libs.udp.remote_write(&ev3com_control.comm, ev3com_control.remote_ipaddr);
+	return err;
+}
 
+#ifndef EV3COM_LEGACY
+static Std_ReturnType ev3com_remote_read_protobuf(void)
+{
+	Ev3PacketBufferType in;
+	Ev3RawBufferType out;
+
+	out.datap = ev3com_control.rx_memory;
+	out.len = sizeof(ev3com_control.rx_memory);
+
+	Std_ReturnType err;
+	err = athrill_ex_devop->libs.udp.read(&ev3com_control.comm);
+	if (err != STD_E_OK) {
+		return err;
+	}
+	in.datap = ev3com_control.comm.read_data.buffer;
+	in.len = ev3com_control.comm.read_data.len;
+	ev3packet_sensor_decode((const Ev3PacketBufferType *)&in, &out);
+	return STD_E_OK;
+}
+
+static Std_ReturnType ev3com_remote_write_protobuf(void)
+{
+	Std_ReturnType err;
+	Ev3RawBufferType in;
+    in.datap = ev3com_control.tx_memory;
+    in.len = sizeof(ev3com_control.tx_memory);
+
+    Ev3PacketBufferType packet;
+	packet.datap = ev3com_control.comm.write_data.buffer;
+	packet.len = sizeof(ev3com_control.comm.write_data.buffer);
+    ev3com_control.comm.write_data.len = ev3packet_actuator_encode((const Ev3RawBufferType *)&in, &packet);
+
+	err = athrill_ex_devop->libs.udp.remote_write(&ev3com_control.comm, ev3com_control.remote_ipaddr);
+	return err;
+}
+#endif
 static Std_ReturnType ev3com_thread_do_proc(MpthrIdType id)
 {
 	Std_ReturnType err;
@@ -330,19 +403,16 @@ static Std_ReturnType ev3com_thread_do_proc(MpthrIdType id)
 	uint64 curr_stime;
 
 	while (1) {
-		err = athrill_ex_devop->libs.udp.read(&ev3com_control.comm);
-		
+		err = ev3com_read();
 		if (err != STD_E_OK) {
 			continue;
-		} else if (ev3com_udp_packet_check((const char*)&ev3com_control.comm.read_data.buffer[0]) != STD_E_OK) {
+		}
+		else if (ev3com_udp_packet_check((const char*)&ev3com_control.rx_memory[0]) != STD_E_OK) {
 			continue;
 		}
-		//gettimeofday(&unity_notify_time, NULL);
-		memcpy(&ev3com_control.region->data[off], &ev3com_control.comm.read_data.buffer[0], ev3com_control.comm.read_data.len);
-		memcpy((void*)&curr_stime, &ev3com_control.comm.read_data.buffer[EV3COM_RX_SIM_TIME(EV3COM_SIM_INX_ME)], 8U);
+		memcpy(&ev3com_control.region->data[off], &ev3com_control.rx_memory[0], sizeof(ev3com_control.rx_memory));
+		memcpy((void*)&curr_stime, &ev3com_control.rx_memory[EV3COM_RX_SIM_TIME(EV3COM_SIM_INX_ME)], 8U);
 
-		//unity_interval_vtime = curr_stime - ev3com_udp_control.ev3com_sim_time[EV3COM_SIM_INX_YOU];
-		//ev3com_calc_predicted_virtual_time(ev3com_udp_control.ev3com_sim_time[EV3COM_SIM_INX_YOU], curr_stime);
 		ev3com_control.vdev_sim_time[EV3COM_SIM_INX_YOU] = curr_stime;
 		if (ev3com_simtime_sync_filepath != NULL) {
 			ev3com_simtime_sync_write(ev3com_control.vdev_sim_time[EV3COM_SIM_INX_YOU], ev3com_control.vdev_sim_time[EV3COM_SIM_INX_ME]);
@@ -373,7 +443,7 @@ static Std_ReturnType ev3com_send_thread_do_proc(MpthrIdType id)
 		// check if another thread has sent TX massage to Unity
 		diff = get_time_from_previous_sending();
 		if ( diff >= 10*1000000 )  {
-				err = athrill_ex_devop->libs.udp.remote_write(&ev3com_control.comm, ev3com_control.remote_ipaddr);
+				err = ev3com_write();
 				if (err != STD_E_OK) {
 					printf("WARNING: vdevput_data8: udp send error=%d\n", err);
 				}
@@ -421,15 +491,15 @@ static Std_ReturnType ev3com_udp_put_data8(MpuAddressRegionType *region, CoreIdT
 	
 		lock_send_mutex();
 
-		memcpy(&ev3com_control.comm.write_data.buffer[EV3COM_TX_DATA_BODY_OFF], &region->data[tx_off + EV3COM_TX_DATA_BODY_OFF], EV3COM_TX_DATA_BODY_SIZE);
-		memcpy(&ev3com_control.comm.write_data.buffer[EV3COM_TX_SIM_TIME(EV3COM_SIM_INX_ME)],  (void*)&ev3com_control.vdev_sim_time[EV3COM_SIM_INX_ME], 8U);
-		memcpy(&ev3com_control.comm.write_data.buffer[EV3COM_TX_SIM_TIME(EV3COM_SIM_INX_YOU)], (void*)&ev3com_control.vdev_sim_time[EV3COM_SIM_INX_YOU], 8U);
+		memcpy(&ev3com_control.tx_memory[EV3COM_TX_DATA_BODY_OFF], &region->data[tx_off + EV3COM_TX_DATA_BODY_OFF], EV3COM_TX_DATA_BODY_SIZE);
+		memcpy(&ev3com_control.tx_memory[EV3COM_TX_SIM_TIME(EV3COM_SIM_INX_ME)],  (void*)&ev3com_control.vdev_sim_time[EV3COM_SIM_INX_ME], 8U);
+		memcpy(&ev3com_control.tx_memory[EV3COM_TX_SIM_TIME(EV3COM_SIM_INX_YOU)], (void*)&ev3com_control.vdev_sim_time[EV3COM_SIM_INX_YOU], 8U);
 		//printf("sim_time=%llu\n", ev3com_udp_control.ev3com_sim_time[EV3COM_SIM_INX_ME]);
-		err = athrill_ex_devop->libs.udp.remote_write(&ev3com_control.comm, ev3com_control.remote_ipaddr);
+		err = ev3com_write();
 
 		// Clear reset area
 		if ( reset_area_off && reset_area_size ) {
-				memset(&ev3com_control.comm.write_data.buffer[reset_area_off],0,reset_area_size);
+				memset(&ev3com_control.tx_memory[reset_area_off],0,reset_area_size);
 				memset(&region->data[tx_off+reset_area_off],0,reset_area_size);
 		}
 		save_sent_time();

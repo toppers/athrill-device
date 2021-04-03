@@ -19,6 +19,8 @@ typedef struct {
 	 * for UDP ONLY
 	 */
 	UdpCommType comm;
+	char rx_memory[EV3COM_RX_DATA_COMM_SIZE];
+	char tx_memory[EV3COM_TX_DATA_COMM_SIZE];
 	char *remote_ipaddr;
 	char *local_ipaddr;
 

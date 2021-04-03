@@ -96,22 +96,54 @@ add_custom_command(
       DEPENDS "${serial_proto}")
 
 
+#EV3Packet
+get_filename_component(ev3_proto "../../../../hakoniwa-core/spec/ev3/hakoniwa_ev3.proto" ABSOLUTE)
+get_filename_component(ev3_proto_path "${ev3_proto}" PATH)
+set(ev3_proto_srcs "${CMAKE_CURRENT_BINARY_DIR}/hakoniwa_ev3.pb.cc")
+set(ev3_proto_hdrs "${CMAKE_CURRENT_BINARY_DIR}/hakoniwa_ev3.pb.h")
+add_custom_command(
+      OUTPUT "${ev3_proto_srcs}" "${ev3_proto_hdrs}" 
+      COMMAND ${_PROTOBUF_PROTOC}
+      ARGS --cpp_out "${CMAKE_CURRENT_BINARY_DIR}"
+        -I "${ev3_proto_path}"
+        "${ev3_proto}"
+      DEPENDS "${ev3_proto}")
+
 # Include generated *.pb.h files
 include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 
-# Targets greeter_[async_](client|server)
-foreach(_target serial_client)
-  add_library(${_target} STATIC "${PROJECT_SOURCE_DIR}/client/cpp/${_target}.cc"
-    ${serial_proto_srcs}
-    ${serial_grpc_srcs})
-  target_link_libraries(${_target}
-    ${_REFLECTION}
-    ${_GRPC_GRPCPP}
-    ${_PROTOBUF_LIBPROTOBUF})
-endforeach()
+add_library(serial_client STATIC "${PROJECT_SOURCE_DIR}/client/cpp/serial_client.cc"
+  ${serial_proto_srcs}
+  ${serial_grpc_srcs}
+  ${ev3_proto_srcs})
+target_link_libraries(serial_client
+  ${_REFLECTION}
+  ${_GRPC_GRPCPP}
+  ${_PROTOBUF_LIBPROTOBUF})
+
+add_library(ev3packet STATIC "${PROJECT_SOURCE_DIR}/client/cpp/ev3packet.cc"
+  ${ev3_proto_srcs})
+target_link_libraries(ev3packet
+  ${_REFLECTION}
+  ${_GRPC_GRPCPP}
+  ${_PROTOBUF_LIBPROTOBUF})
+
 
 add_executable(serial_client_main ${PROJECT_SOURCE_DIR}/client/cpp/serial_client_main.cc)
 target_link_libraries(serial_client_main serial_client
+    ${_REFLECTION}
+    ${_GRPC_GRPCPP}
+    ${_PROTOBUF_LIBPROTOBUF})
+
+
+add_executable(ev3packet_actuator_test ${PROJECT_SOURCE_DIR}/client/cpp/ev3packet_actuator_test.cc)
+target_link_libraries(ev3packet_actuator_test ev3packet
+    ${_REFLECTION}
+    ${_GRPC_GRPCPP}
+    ${_PROTOBUF_LIBPROTOBUF})
+
+add_executable(ev3packet_sensor_test ${PROJECT_SOURCE_DIR}/client/cpp/ev3packet_sensor_test.cc)
+target_link_libraries(ev3packet_sensor_test ev3packet
     ${_REFLECTION}
     ${_GRPC_GRPCPP}
     ${_PROTOBUF_LIBPROTOBUF})
