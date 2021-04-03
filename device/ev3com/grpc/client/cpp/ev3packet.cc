@@ -29,7 +29,7 @@ int ev3packet_actuator_encode(const Ev3RawBufferType *in, Ev3PacketBufferType *o
     //convert from raw to protobuf
     packet.mutable_header()->set_name("ETTX");
     packet.mutable_header()->set_version(CONV_UINT32(&in->datap[EV3_ACTUATOR_VERSION_ADDR]));
-    packet.mutable_header()->set_hakoniwa_time(CONV_UINT64(&in->datap[EV3_ACTUATOR_SIMTIME_ADDR]));
+    packet.mutable_header()->set_asset_time(CONV_UINT64(&in->datap[EV3_ACTUATOR_SIMTIME_ADDR]));
     packet.mutable_header()->set_ext_off(CONV_UINT32(&in->datap[EV3_ACTUATOR_EXTOFF_ADDR]));
     packet.mutable_header()->set_ext_size(CONV_UINT32(&in->datap[EV3_ACTUATOR_EXTSIZE_ADDR]));
 
