@@ -37,17 +37,17 @@ int ev3packet_actuator_encode(const Ev3RawBufferType *in, Ev3PacketBufferType *o
 
     Ev3PduActuator_Body_Motor *motor = packet.mutable_body()->add_motors();
     ASSERT(motor != NULL);
-    motor->set_power(CONV_UINT32(&in->datap[EV3_MOTOR_ADDR_POWER_A]));
+    motor->set_power(CONV_INT32(&in->datap[EV3_MOTOR_ADDR_POWER_A]));
     motor->set_stop(CONV_UINT32(&in->datap[EV3_MOTOR_ADDR_STOP_A]));
     motor->set_reset_angle(CONV_UINT32(&in->datap[EV3_MOTOR_ADDR_RESET_ANGLE_A]));
     motor = packet.mutable_body()->add_motors();
     ASSERT(motor != NULL);
-    motor->set_power(CONV_UINT32(&in->datap[EV3_MOTOR_ADDR_POWER_B]));
+    motor->set_power(CONV_INT32(&in->datap[EV3_MOTOR_ADDR_POWER_B]));
     motor->set_stop(CONV_UINT32(&in->datap[EV3_MOTOR_ADDR_STOP_B]));
     motor->set_reset_angle(CONV_UINT32(&in->datap[EV3_MOTOR_ADDR_RESET_ANGLE_B]));
     motor = packet.mutable_body()->add_motors();
     ASSERT(motor != NULL);
-    motor->set_power(CONV_UINT32(&in->datap[EV3_MOTOR_ADDR_POWER_C]));
+    motor->set_power(CONV_INT32(&in->datap[EV3_MOTOR_ADDR_POWER_C]));
     motor->set_stop(CONV_UINT32(&in->datap[EV3_MOTOR_ADDR_STOP_C]));
     motor->set_reset_angle(CONV_UINT32(&in->datap[EV3_MOTOR_ADDR_RESET_ANGLE_C]));
 
