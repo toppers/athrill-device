@@ -32,11 +32,11 @@ int main(int argc, const char* argv[])
     printf("ext_size=%u\n", CONV_UINT32(&buffer[EV3_SENSOR_EXTSIZE_ADDR]));
 
     printf("buttons=0x%x\n", *CONV_CHARP(&buffer[EV3_GPIO_BTN_ADDR]));
-    printf("color=%u\n", CONV_UINT32(&buffer[EV3_SENSOR_ADDR_COLOR]));
-    printf("reflect=%u\n", CONV_UINT32(&buffer[EV3_SENSOR_ADDR_REFLECT]));
-    printf("rgb_r=%u\n", CONV_UINT32(&buffer[EV3_SENSOR_ADDR_RGB_R]));
-    printf("rgb_g=%u\n", CONV_UINT32(&buffer[EV3_SENSOR_ADDR_RGB_G]));
-    printf("rgb_b=%u\n", CONV_UINT32(&buffer[EV3_SENSOR_ADDR_RGB_B]));
+    printf("color0=%u\n", CONV_UINT32(&buffer[EV3_SENSOR_ADDR_COLOR0]));
+    printf("reflect0=%u\n", CONV_UINT32(&buffer[EV3_SENSOR_ADDR_REFLECT0]));
+    printf("rgb_r0=%u\n", CONV_UINT32(&buffer[EV3_SENSOR_ADDR_RGB_R0]));
+    printf("rgb_g0=%u\n", CONV_UINT32(&buffer[EV3_SENSOR_ADDR_RGB_G0]));
+    printf("rgb_b0=%u\n", CONV_UINT32(&buffer[EV3_SENSOR_ADDR_RGB_B0]));
 
     printf("touch_sensor0=%u\n", CONV_UINT32(&buffer[EV3_SENSOR_ADDR_TOUCH_0]));
     printf("touch_sensor1=%u\n", CONV_UINT32(&buffer[EV3_SENSOR_ADDR_TOUCH_1]));

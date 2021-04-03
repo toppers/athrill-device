@@ -87,11 +87,17 @@ void ev3packet_sensor_decode(const Ev3PacketBufferType *in, Ev3RawBufferType *ou
 
     memcpy(CONV_CHARP(&out[EV3_GPIO_BTN_ADDR]), packet.mutable_body()->buttons().c_str(), 1U);
     CONV_UINT32(&out->datap[EV3_SENSOR_ADDR_AMBIENT]) =  0;
-    CONV_UINT32(&out->datap[EV3_SENSOR_ADDR_COLOR]) =  packet.mutable_body()->color_sensors(0).color();
-    CONV_UINT32(&out->datap[EV3_SENSOR_ADDR_REFLECT]) =  packet.mutable_body()->color_sensors(0).reflect();
-    CONV_UINT32(&out->datap[EV3_SENSOR_ADDR_RGB_R]) =  packet.mutable_body()->color_sensors(0).rgb_r();
-    CONV_UINT32(&out->datap[EV3_SENSOR_ADDR_RGB_G]) =  packet.mutable_body()->color_sensors(0).rgb_g();
-    CONV_UINT32(&out->datap[EV3_SENSOR_ADDR_RGB_B]) =  packet.mutable_body()->color_sensors(0).rgb_b();
+    CONV_UINT32(&out->datap[EV3_SENSOR_ADDR_COLOR0]) =  packet.mutable_body()->color_sensors(0).color();
+    CONV_UINT32(&out->datap[EV3_SENSOR_ADDR_REFLECT0]) =  packet.mutable_body()->color_sensors(0).reflect();
+    CONV_UINT32(&out->datap[EV3_SENSOR_ADDR_RGB_R0]) =  packet.mutable_body()->color_sensors(0).rgb_r();
+    CONV_UINT32(&out->datap[EV3_SENSOR_ADDR_RGB_G0]) =  packet.mutable_body()->color_sensors(0).rgb_g();
+    CONV_UINT32(&out->datap[EV3_SENSOR_ADDR_RGB_B0]) =  packet.mutable_body()->color_sensors(0).rgb_b();
+
+    CONV_UINT32(&out->datap[EV3_SENSOR_ADDR_COLOR1]) =  packet.mutable_body()->color_sensors(1).color();
+    CONV_UINT32(&out->datap[EV3_SENSOR_ADDR_REFLECT1]) =  packet.mutable_body()->color_sensors(1).reflect();
+    CONV_UINT32(&out->datap[EV3_SENSOR_ADDR_RGB_R1]) =  packet.mutable_body()->color_sensors(1).rgb_r();
+    CONV_UINT32(&out->datap[EV3_SENSOR_ADDR_RGB_G1]) =  packet.mutable_body()->color_sensors(1).rgb_g();
+    CONV_UINT32(&out->datap[EV3_SENSOR_ADDR_RGB_B1]) =  packet.mutable_body()->color_sensors(1).rgb_b();
 
     CONV_UINT32(&out->datap[EV3_SENSOR_ADDR_TOUCH_0]) =  packet.mutable_body()->touch_sensors(0).value();
     CONV_UINT32(&out->datap[EV3_SENSOR_ADDR_TOUCH_1]) =  packet.mutable_body()->touch_sensors(1).value();
