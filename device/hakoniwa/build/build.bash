@@ -3,13 +3,13 @@
 TARGET_OS=`uname`
 OPENSSL_PATH=/usr/local/opt/openssl
 
-if [ $# -ne 1 ]
+if [ $# -ne 0 -a $# -ne 1 ]
 then
-	echo "$0 {all|clean}"
+	echo "$0 [clean]"
 	exit 1
 fi
 
-if [ $1 = "all" ]
+if [ $# -eq 0 ]
 then
 	if [ $TARGET_OS = "Linux" ] || [ $TARGET_OS = "Darwin" ]
 	then
@@ -28,6 +28,6 @@ then
 	rm cmake*
 	rm *.so
 else
-	echo "$0 {all|clean}"
+	echo "$0 [clean]"
 	exit 1
 fi

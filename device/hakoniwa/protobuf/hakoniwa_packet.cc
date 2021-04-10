@@ -27,6 +27,7 @@ int hakoniwa_packet_actuator_encode(const HakoniwaAssetDeviceType *in, HakoniwaP
 	MiconPduActuator packet;
 
     //convert from raw to protobuf
+    packet.mutable_header()->set_name("MiconActuatorPdu");
     packet.mutable_header()->set_version(in->version);
     packet.mutable_header()->set_asset_time(in->asset_time);
 

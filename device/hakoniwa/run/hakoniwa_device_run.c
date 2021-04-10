@@ -32,10 +32,11 @@ void ex_device_init(MpuAddressRegionType *region, AthrillExDevOperationType *ath
 		printf("ERROR: can not load param HAKONIWA_ASSET_TX_PORTNO\n");
 		ASSERT(err == STD_E_OK);
 	}
-	printf("TX HAKONIWA_ASSET_TX_PORTNO=%d\n", portno);
+	printf("HAKONIWA_ASSET_TX_PORTNO=%d\n", portno);
+
 	hakoniwa_asset_controller.local_ipaddr = "127.0.0.1";
 	(void)athrill_ex_devop->param.get_devcfg_string("HAKONIWA_ASSET_RX_IPADDR", &hakoniwa_asset_controller.local_ipaddr);
-	hakoniwa_asset_controller.client_port = (uint16)portno;
+	hakoniwa_asset_controller.udp_config.client_port = (uint16)portno;
 	err = athrill_ex_devop->param.get_devcfg_value("HAKONIWA_ASSET_RX_PORTNO", &portno);
 	if (err != STD_E_OK) {
 		printf("ERROR: can not load param HAKONIWA_ASSET_RX_PORTNO\n");
@@ -44,7 +45,9 @@ void ex_device_init(MpuAddressRegionType *region, AthrillExDevOperationType *ath
 	hakoniwa_asset_controller.udp_config.server_port = (uint16)portno;
 	printf("HAKONIWA_ASSET_RX_PORTNO=%d\n", portno);
 
-	err = athrill_ex_devop->libs.udp.create_ipaddr(&hakoniwa_asset_controller.udp_config, &hakoniwa_asset_controller.udp_comm, hakoniwa_asset_controller.local_ipaddr);
+	err = athrill_ex_devop->libs.udp.create_ipaddr(&hakoniwa_asset_controller.udp_config,
+			&hakoniwa_asset_controller.udp_comm,
+			hakoniwa_asset_controller.local_ipaddr);
 	ASSERT(err == STD_E_OK);
 
 	err = athrill_ex_devop->libs.thread.thr_register(&thrid, &hakoniwa_asset_op);
@@ -52,8 +55,12 @@ void ex_device_init(MpuAddressRegionType *region, AthrillExDevOperationType *ath
 
 	err = athrill_ex_devop->libs.thread.start_proc(thrid);
 	ASSERT(err == STD_E_OK);
+
+	hakoniwa_asset_controller.asset_device.version = 0x1;
+
 	return;
 }
+static void hakoniwa_send_packet(void);
 
 void ex_device_supply_clock(DeviceClockType *dev_clock)
 {
@@ -75,6 +82,12 @@ void ex_device_supply_clock(DeviceClockType *dev_clock)
 			dev_clock->min_intr_interval = interval_ticks;
 		}
 	}
+
+	hakoniwa_asset_controller.asset_device.asset_time = dev_clock->clock /  ((uint64)hakoniwa_asset_controller.cpu_freq);
+	if ((hakoniwa_asset_controller.core_device.hakoniwa_time == 0) && (hakoniwa_asset_controller.asset_device.asset_time > 0)) {
+		hakoniwa_send_packet();
+	}
+
 	return;
 }
 
@@ -95,7 +108,6 @@ static void hakoniwa_send_packet(void)
 
 static Std_ReturnType hakoniwa_asset_thread_do_init(MpthrIdType id)
 {
-	hakoniwa_send_packet();
 	return STD_E_OK;
 }
 
@@ -103,6 +115,8 @@ static Std_ReturnType hakoniwa_asset_thread_do_init(MpthrIdType id)
 static Std_ReturnType hakoniwa_asset_thread_do_proc(MpthrIdType id)
 {
 	Std_ReturnType err;
+
+	printf("hakoniwa_asset_thread_do_proc:start\n");
 
 	while (1) {
 		HakoniwaPacketBufferType in;
@@ -118,6 +132,4 @@ static Std_ReturnType hakoniwa_asset_thread_do_proc(MpthrIdType id)
 		hakoniwa_send_packet();
 	}
 	return STD_E_OK;
-
-
 }

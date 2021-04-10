@@ -16,7 +16,6 @@ typedef struct {
     uint32						cpu_freq;
     char						*remote_ipaddr;
     char						*local_ipaddr;
-    uint16						client_port;
 } HakoniwaAssetDeviceControllerType;
 
 extern HakoniwaAssetDeviceControllerType hakoniwa_asset_controller;

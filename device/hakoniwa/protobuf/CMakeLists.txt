@@ -56,10 +56,11 @@ add_custom_command(
 include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 
 
-add_library(hakoniwa_protobuf SHARED
+add_library(hakoniwa_protobuf STATIC
 	hakoniwa_packet.cc
 	${hakoniwa_proto_srcs})
 target_link_libraries(hakoniwa_protobuf
     ${_REFLECTION}
     ${_GRPC_GRPCPP}
     ${_PROTOBUF_LIBPROTOBUF})
+
