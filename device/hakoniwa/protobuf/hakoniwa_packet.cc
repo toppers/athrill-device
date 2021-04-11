@@ -52,5 +52,6 @@ void hakoniwa_packet_sensor_decode(const HakoniwaPacketBufferType *in, HakoniwaC
     out->version = packet.mutable_header()->version();
     //printf("version=0x%x\n", packet.mutable_header()->version());
     out->hakoniwa_time = packet.mutable_header()->hakoniwa_time();
+    //printf("hakoniwa_time=%lu\n", packet.mutable_header()->hakoniwa_time());
     return;
 }

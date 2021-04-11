@@ -66,6 +66,7 @@ void ex_device_supply_clock(DeviceClockType *dev_clock)
 {
 	uint64 interval_ticks;
 	uint64 hakoniwa_time_ticks;
+	static int is_send = 0;
 
 	hakoniwa_time_ticks = hakoniwa_asset_controller.core_device.hakoniwa_time * ((uint64)hakoniwa_asset_controller.cpu_freq);
 	if (hakoniwa_time_ticks == 0) {
@@ -85,7 +86,10 @@ void ex_device_supply_clock(DeviceClockType *dev_clock)
 
 	hakoniwa_asset_controller.asset_device.asset_time = dev_clock->clock /  ((uint64)hakoniwa_asset_controller.cpu_freq);
 	if ((hakoniwa_asset_controller.core_device.hakoniwa_time == 0) && (hakoniwa_asset_controller.asset_device.asset_time > 0)) {
-		hakoniwa_send_packet();
+		if (is_send == 0) {
+			hakoniwa_send_packet();
+			is_send = 1;
+		}
 	}
 
 	return;
@@ -129,6 +133,7 @@ static Std_ReturnType hakoniwa_asset_thread_do_proc(MpthrIdType id)
 		in.len = hakoniwa_asset_controller.udp_comm.read_data.len;
 		hakoniwa_packet_sensor_decode((const HakoniwaPacketBufferType *)&in, &hakoniwa_asset_controller.core_device);
 
+		//printf("recv: time=%llu\n", hakoniwa_asset_controller.core_device.hakoniwa_time);
 		hakoniwa_send_packet();
 	}
 	return STD_E_OK;
