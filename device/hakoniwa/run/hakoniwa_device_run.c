@@ -8,11 +8,18 @@ HakoniwaAssetDeviceControllerType hakoniwa_asset_controller;
 
 static Std_ReturnType hakoniwa_asset_thread_do_init(MpthrIdType id);
 static Std_ReturnType hakoniwa_asset_thread_do_proc(MpthrIdType id);
+static Std_ReturnType hakoniwa_asset_thread_do_tx_proc(MpthrIdType id);
 
 static MpthrOperationType hakoniwa_asset_op = {
 	.do_init = hakoniwa_asset_thread_do_init,
 	.do_proc = hakoniwa_asset_thread_do_proc,
 };
+
+static MpthrOperationType hakoniwa_asset_tx_op = {
+	.do_init = hakoniwa_asset_thread_do_init,
+	.do_proc = hakoniwa_asset_thread_do_tx_proc,
+};
+
 
 AthrillExDevOperationType *athrill_ex_devop;
 void ex_device_init(MpuAddressRegionType *region, AthrillExDevOperationType *athrill_ops)
@@ -52,7 +59,11 @@ void ex_device_init(MpuAddressRegionType *region, AthrillExDevOperationType *ath
 
 	err = athrill_ex_devop->libs.thread.thr_register(&thrid, &hakoniwa_asset_op);
 	ASSERT(err == STD_E_OK);
+	err = athrill_ex_devop->libs.thread.start_proc(thrid);
+	ASSERT(err == STD_E_OK);
 
+	err = athrill_ex_devop->libs.thread.thr_register(&thrid, &hakoniwa_asset_tx_op);
+	ASSERT(err == STD_E_OK);
 	err = athrill_ex_devop->libs.thread.start_proc(thrid);
 	ASSERT(err == STD_E_OK);
 
@@ -66,7 +77,6 @@ void ex_device_supply_clock(DeviceClockType *dev_clock)
 {
 	uint64 interval_ticks;
 	uint64 hakoniwa_time_ticks;
-	static int is_send = 0;
 
 	hakoniwa_time_ticks = hakoniwa_asset_controller.core_device.hakoniwa_time * ((uint64)hakoniwa_asset_controller.cpu_freq);
 	if (hakoniwa_time_ticks == 0) {
@@ -85,12 +95,6 @@ void ex_device_supply_clock(DeviceClockType *dev_clock)
 	}
 
 	hakoniwa_asset_controller.asset_device.asset_time = dev_clock->clock /  ((uint64)hakoniwa_asset_controller.cpu_freq);
-	if ((hakoniwa_asset_controller.core_device.hakoniwa_time == 0) && (hakoniwa_asset_controller.asset_device.asset_time > 0)) {
-		if (is_send == 0) {
-			hakoniwa_send_packet();
-			is_send = 1;
-		}
-	}
 
 	return;
 }
@@ -108,6 +112,16 @@ static void hakoniwa_send_packet(void)
 	err = athrill_ex_devop->libs.udp.remote_write(&hakoniwa_asset_controller.udp_comm, hakoniwa_asset_controller.remote_ipaddr);
 	ASSERT(err == STD_E_OK);
 	return;
+}
+static Std_ReturnType hakoniwa_asset_thread_do_tx_proc(MpthrIdType id)
+{
+	printf("hakoniwa_asset_thread_do_tx_proc:start\n");
+
+	while (1) {
+		hakoniwa_send_packet();
+		usleep(10 * 1000);
+	}
+	return STD_E_OK;
 }
 
 static Std_ReturnType hakoniwa_asset_thread_do_init(MpthrIdType id)
@@ -134,7 +148,7 @@ static Std_ReturnType hakoniwa_asset_thread_do_proc(MpthrIdType id)
 		hakoniwa_packet_sensor_decode((const HakoniwaPacketBufferType *)&in, &hakoniwa_asset_controller.core_device);
 
 		//printf("recv: time=%llu\n", hakoniwa_asset_controller.core_device.hakoniwa_time);
-		hakoniwa_send_packet();
+		//hakoniwa_send_packet();
 	}
 	return STD_E_OK;
 }
