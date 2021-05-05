@@ -20,7 +20,7 @@ then
 	make
 	if [ $TARGET_OS = "Darwin" ]
 	then
-		cp libdevsample.dylib libdevsample.so
+		cp libev3com.dylib libev3com.so
 	fi
 elif [ $1 = "clean" ]
 then
