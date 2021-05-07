@@ -22,7 +22,7 @@ static MpthrOperationType	tx_thread_ops = {
 void ev3serial_init(void)
 {
 	char *server = "localhost";
-	char *portno = "50051";
+	int portno = 50051;
 	static char ip_port[1024];
     ev3_serial_control.channel_id = -1;
 	Std_ReturnType err = athrill_ex_devop->param.get_devcfg_value("DEVICE_CONFIG_EV3_CH1_SERIAL_ID", (uint32*)&ev3_serial_control.channel_id);
@@ -31,9 +31,9 @@ void ev3serial_init(void)
 	}
 	(void)athrill_ex_devop->param.get_devcfg_string("DEVICE_CONFIG_EV3_BT_SERVER_IPADDR", &server);
 	printf("DEVICE_CONFIG_EV3_BT_SERVER_IPADDR=%s\n", server);
-	(void)athrill_ex_devop->param.get_devcfg_string("DEVICE_CONFIG_EV3_BT_SERVER_PORTNO", &portno);
-	printf("DEVICE_CONFIG_EV3_BT_SERVER_PORTNO=%s\n", portno);
-	sprintf(ip_port, "%s:%s", server, portno);
+	(void)athrill_ex_devop->param.get_devcfg_value("DEVICE_CONFIG_EV3_BT_SERVER_PORTNO", &portno);
+	printf("DEVICE_CONFIG_EV3_BT_SERVER_PORTNO=%u\n", portno);
+	sprintf(ip_port, "%s:%u", server, portno);
 	serial_client_init(ip_port);
     /*
      * Get Serial fifo
