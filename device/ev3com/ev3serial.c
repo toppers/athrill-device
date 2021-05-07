@@ -22,7 +22,7 @@ static MpthrOperationType	tx_thread_ops = {
 void ev3serial_init(void)
 {
 	char *server = "localhost";
-	int portno = 50051;
+	uint32 portno = 50051;
 	static char ip_port[1024];
     ev3_serial_control.channel_id = -1;
 	Std_ReturnType err = athrill_ex_devop->param.get_devcfg_value("DEVICE_CONFIG_EV3_CH1_SERIAL_ID", (uint32*)&ev3_serial_control.channel_id);

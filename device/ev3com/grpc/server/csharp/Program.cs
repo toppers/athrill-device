@@ -11,8 +11,8 @@ namespace BtSerial
     {
         static void Main(string[] args)
         {
-            string ipaddr = "172.31.160.1";
-            int portno = 50051;
+            string ipaddr = "172.20.80.1";
+            int portno = 50061;
             int buffer_size = 1024 * 1024; /* 1MB */
             Console.WriteLine("ipaddr=" + ipaddr + " portno=" + portno.ToString());
 
