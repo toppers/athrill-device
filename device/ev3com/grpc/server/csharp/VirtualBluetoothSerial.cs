@@ -52,5 +52,18 @@ namespace BtSerial
                 Console.WriteLine("ERROR: Can not write on data because of no space: data= " + text);
             }
         }
+        public void WriteLine(char text)
+        {
+            if (this.out_fifo.HasWritableArea(1 + 1))
+            {
+                string newline_text = text + "\n";
+                this.out_fifo.Write(newline_text);
+                //Console.WriteLine("WriteLine: " + text);
+            }
+            else
+            {
+                Console.WriteLine("ERROR: Can not write on data because of no space: data= " + text);
+            }
+        }
     }
 }
