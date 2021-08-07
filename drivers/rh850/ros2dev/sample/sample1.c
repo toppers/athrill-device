@@ -280,6 +280,10 @@ TASK(MainTask)
 	while (1) {
 		WaitEvent(MainEvt);     /* 10msの作業時間待ち */
 		ClearEvent(MainEvt);
+		//syslog(LOG_NOTICE, "req=0x%x id=%d", &req, req.id);
+		//syslog(LOG_NOTICE, "ret=%d", req.ret);
+		//syslog(LOG_NOTICE, "datalen=%d", req.datalen);
+		//syslog(LOG_NOTICE, "ptr=0x%x", req.ptr);
 		rosdev_write_data(&req);
 		pub_data++;
 

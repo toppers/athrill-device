@@ -30,6 +30,7 @@ include_directories("${CORE_DIR}/device/peripheral/serial/fifo")
 include_directories("${CORE_DIR}/lib")
 include_directories(../lib/include)
 include_directories(../lib/src)
+include_directories(./include)
 
 add_compile_definitions(OS_LINUX)
 add_compile_definitions(ATHRILL_EXT_DEVICE)

@@ -3,6 +3,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "assert.h"
+#include "ros_dev.h"
+
 static Std_ReturnType ex_extdev_get_data8(MpuAddressRegionType* region, CoreIdType core_id, uint32 addr, uint8* data);
 static Std_ReturnType ex_extdev_get_data16(MpuAddressRegionType* region, CoreIdType core_id, uint32 addr, uint16* data);
 static Std_ReturnType ex_extdev_get_data32(MpuAddressRegionType* region, CoreIdType core_id, uint32 addr, uint32* data);
@@ -77,7 +80,6 @@ static Std_ReturnType ex_extdev_put_data8(MpuAddressRegionType* region, CoreIdTy
 {
 	uint32 off = (addr - region->start);
 	*((uint8*)(&region->data[off])) = data;
-	printf("SAMPLE_DEVICE: put8() addr=0x%x data=0x%x(%c)\n", addr, data, data);
 	return STD_E_OK;
 }
 static Std_ReturnType ex_extdev_put_data16(MpuAddressRegionType* region, CoreIdType core_id, uint32 addr, uint16 data)
@@ -88,8 +90,22 @@ static Std_ReturnType ex_extdev_put_data16(MpuAddressRegionType* region, CoreIdT
 }
 static Std_ReturnType ex_extdev_put_data32(MpuAddressRegionType* region, CoreIdType core_id, uint32 addr, uint32 data)
 {
-	uint32 off = (addr - region->start);
-	*((uint32*)(&region->data[off])) = data;
+	RosReqType req;
+	uint8* ptr;
+	
+	Std_ReturnType err = athrill_ex_devop->dev.get_memory(data, (uint8**)&ptr);
+	ASSERT(err == STD_E_OK);
+
+	req.id =		*((uint32*)ptr);
+	req.ret =		*((uint32*)(ptr + 4U));
+	req.datalen =	*((uint32*)(ptr + 8U));
+	err = athrill_ex_devop->dev.get_memory((*((uint32*)(ptr + 12U))), (uint8**)&ptr);
+	ASSERT(err == STD_E_OK);
+
+	printf("data=0x%x id=%d\n", data, req.id);
+	printf("ret=%d\n", req.ret);
+	printf("datalen=%d\n", req.datalen);
+	printf("ptr_value=%d\n", *((sint32*)ptr));
 	return STD_E_OK;
 }
 static Std_ReturnType ex_extdev_get_pointer(MpuAddressRegionType* region, CoreIdType core_id, uint32 addr, uint8** data)
