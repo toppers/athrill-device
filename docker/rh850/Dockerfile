@@ -5,6 +5,9 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /root/workspace
 
+#hakoniwa-core
+RUN git clone --recurse-submodules https://github.com/toppers/hakoniwa-core.git
+
 #athrill-target-rh850
 RUN git clone --recurse-submodules -b RC-v0.A.2 https://github.com/toppers/athrill-target-rh850f1x.git
 
@@ -21,5 +24,11 @@ RUN mkdir -p /root/workspace/toppers-atk2-sc1/cfg/cfg \
 WORKDIR /root/workspace/athrill-target-rh850f1x/build_linux 
 RUN make skip_clock_bugfix=true fix_intr_cpu_rcv_clr=true fix_intr_pmr_bugfix=true 
 
+
+#install hakoniwa command
+WORKDIR /root/workspace/hakoniwa-core/impl/asset/client/build
+RUN bash build.bash cpp
+
 ENV PATH /root/workspace/athrill-target-rh850f1x/athrill/bin/linux/:${PATH}
+ENV PATH /root/workspace/hakoniwa-core/impl/asset/client/build/cpp/:${PATH}
 WORKDIR /root/workspace
