@@ -5,6 +5,10 @@
 
 #include "assert.h"
 #include "ros_dev.h"
+#include "ros2dev_gen.h"
+#include "private/ros_dev_reg.h"
+
+static void ros2dev_do_request(RosReqType *req, uint32 addr);
 
 static Std_ReturnType ex_extdev_get_data8(MpuAddressRegionType* region, CoreIdType core_id, uint32 addr, uint8* data);
 static Std_ReturnType ex_extdev_get_data16(MpuAddressRegionType* region, CoreIdType core_id, uint32 addr, uint16* data);
@@ -88,29 +92,72 @@ static Std_ReturnType ex_extdev_put_data16(MpuAddressRegionType* region, CoreIdT
 	*((uint16*)(&region->data[off])) = data;
 	return STD_E_OK;
 }
+
 static Std_ReturnType ex_extdev_put_data32(MpuAddressRegionType* region, CoreIdType core_id, uint32 addr, uint32 data)
 {
 	RosReqType req;
 	uint8* ptr;
+	uint8* ptr_data;
 	
+	/*
+	 * Decode Request 
+	 */
 	Std_ReturnType err = athrill_ex_devop->dev.get_memory(data, (uint8**)&ptr);
-	ASSERT(err == STD_E_OK);
+	if (err != STD_E_OK) {
+		printf("ERROR: ROS2DEV can not find req addr=0x%x\n", data);
+		return STD_E_SEGV;
+	}
 
 	req.id =		*((uint32*)ptr);
 	req.ret =		*((uint32*)(ptr + 4U));
 	req.datalen =	*((uint32*)(ptr + 8U));
-	err = athrill_ex_devop->dev.get_memory((*((uint32*)(ptr + 12U))), (uint8**)&ptr);
-	ASSERT(err == STD_E_OK);
+	uint32 ptr_addr = (*((uint32*)(ptr + 12U)));
+	err = athrill_ex_devop->dev.get_memory(ptr_addr, (uint8**)&ptr_data);
+	if (err != STD_E_OK) {
+		printf("ERROR: ROS2DEV can not find req.data addr=0x%x\n", ptr_addr);
+		return STD_E_SEGV;
+	}
+	req.ptr = (RosDevDataPtrType)ptr_data;
 
-	printf("data=0x%x id=%d\n", data, req.id);
-	printf("ret=%d\n", req.ret);
-	printf("datalen=%d\n", req.datalen);
-	printf("ptr_value=%d\n", *((sint32*)ptr));
+	/*
+	 * Do Request
+	 */
+	ros2dev_do_request(&req, addr);
+
+	/*
+	 * Encode Result
+	 */
+	*((uint32*)(ptr + 4U)) = req.ret;
 	return STD_E_OK;
 }
+
 static Std_ReturnType ex_extdev_get_pointer(MpuAddressRegionType* region, CoreIdType core_id, uint32 addr, uint8** data)
 {
 	uint32 off = (addr - region->start);
 	*data = &region->data[off];
 	return STD_E_OK;
+}
+
+
+static void ros2dev_do_request(RosReqType* req, uint32 addr)
+{
+	if (req->id >= ROS2DEV_TOPIC_ID_NUM) {
+		printf("ERROR: ROS2DEV topic id is invalid: %d\n", req->id);
+		//nothing to do
+		return;
+	}
+
+	if (addr == ROS_DEV_REG_PUB_ADDR)
+	{
+		ros2dev_topic_pub_func[req->id](req);
+	}
+	else if (addr == ROS_DEV_REG_SUB_ADDR)
+	{
+		ros2dev_topic_sub_func[req->id](req);
+	}
+	else
+	{
+		//nothing to do
+	}
+	return;
 }

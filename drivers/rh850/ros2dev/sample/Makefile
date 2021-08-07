@@ -197,6 +197,7 @@ INCLUDES := -I. -I$(SRCDIR)/include -I$(SRCDIR)/arch -I$(SRCDIR) $(INCLUDES)
 INCLUDES += -I../common
 INCLUDES += -I../../../../device/ros2dev/include
 INCLUDES += -I../../../../device/ros2dev/include/private
+INCLUDES += -I../../../../device/ros2dev/gen
 LDFLAGS := $(LDFLAGS) 
 LIBS := $(LIBS) $(CXXLIBS)
 CFLAGS = $(COPTS) $(CDEFS) $(INCLUDES)

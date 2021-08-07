@@ -31,6 +31,7 @@ include_directories("${CORE_DIR}/lib")
 include_directories(../lib/include)
 include_directories(../lib/src)
 include_directories(./include)
+include_directories(./gen)
 
 add_compile_definitions(OS_LINUX)
 add_compile_definitions(ATHRILL_EXT_DEVICE)
@@ -39,6 +40,9 @@ add_subdirectory(ros2_ws/athrill_device)
 
 add_library(ros2dev SHARED 
     ros2dev.c 
+    gen/ros2dev_gen.c
+    gen/ros2dev_gen_enc.c
+    gen/ros2dev_gen_dec.c
     ../lib/src/athrill_priv.c)
 target_compile_options(ros2dev PRIVATE -fPIC)
 target_link_libraries(ros2dev athrill_device)

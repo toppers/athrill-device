@@ -71,6 +71,7 @@
 
 #include "ros_dev_com.h"
 #include "ros_dev.h"
+#include "ros2dev_gen_types.h"
 
 #define GetHwCnt(x, y)
 #define GetAppModeInfo()	(0)
@@ -267,11 +268,12 @@ main(void)
  */
 TASK(MainTask)
 {
-	uint32 pub_data = 10;
+	Ros2DevInt32Type pub_data;
 	RosReqType req;
 
 	SetRelAlarm(MainCycArm, TICK_FOR_10MS, TICK_FOR_10MS);
 
+	pub_data.data = 0;
 	req.id = 0;
 	req.ret = 0;
 	req.datalen = sizeof(pub_data);
@@ -285,7 +287,7 @@ TASK(MainTask)
 		//syslog(LOG_NOTICE, "datalen=%d", req.datalen);
 		//syslog(LOG_NOTICE, "ptr=0x%x", req.ptr);
 		rosdev_write_data(&req);
-		pub_data++;
+		pub_data.data++;
 
 	}
 
