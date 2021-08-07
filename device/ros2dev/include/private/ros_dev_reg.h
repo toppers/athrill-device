@@ -1,0 +1,10 @@
+#ifndef _ROS_DEV_REG_H_
+#define _ROS_DEV_REG_H_
+
+#define ROS_DEV_REG_BASE_ADDR	0x20000000
+
+#define ROS_DEV_REG_PUB_ADDR	(ROS_DEV_REG_BASE_ADDR + 0x00)
+#define ROS_DEV_REG_SUB_ADDR	(ROS_DEV_REG_BASE_ADDR + 0x04)
+
+
+#endif /* _ROS_DEV_REG_H_ */

@@ -194,6 +194,9 @@ ifndef OMIT_OPTIMIZATION
 endif
 CDEFS := $(CDEFS) 
 INCLUDES := -I. -I$(SRCDIR)/include -I$(SRCDIR)/arch -I$(SRCDIR) $(INCLUDES)
+INCLUDES += -I../common
+INCLUDES += -I../../../../device/ros2dev/include
+INCLUDES += -I../../../../device/ros2dev/include/private
 LDFLAGS := $(LDFLAGS) 
 LIBS := $(LIBS) $(CXXLIBS)
 CFLAGS = $(COPTS) $(CDEFS) $(INCLUDES)
@@ -206,6 +209,7 @@ APPLDIR =
 APPL_CFG_INPUT := $(foreach file,$(CFGNAME),$(file).arxml)
 
 APPL_DIR = $(APPLDIR) $(SRCDIR)/library
+APPL_DIR += ../common
 APPL_ASMOBJS =
 ifdef USE_CXX
   APPL_CXXOBJS = $(APPLNAME).o 
@@ -213,6 +217,7 @@ ifdef USE_CXX
 else
   APPL_COBJS = $(APPLNAME).o 
 endif
+APPL_COBJS += ros_dev_com.o
 APPL_CFLAGS =
 APPL_LIBS =
 ifdef APPLDIR
