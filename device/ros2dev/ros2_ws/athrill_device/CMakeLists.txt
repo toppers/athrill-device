@@ -19,7 +19,14 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 
-include_directories(include)
+include_directories(
+	include
+	include/gen
+	src/gen
+	../../gen
+	../../include
+	../../include/private
+)
 
 add_library(athrill_device STATIC src/athrill_device.cpp)
 ament_target_dependencies(athrill_device "rclcpp")
@@ -34,5 +41,18 @@ if(BUILD_TESTING)
   #set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
 endif()
+
+install(
+  DIRECTORY include/
+  DESTINATION include
+)
+install(TARGETS
+  athrill_device
+  EXPORT export_athrill_device
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES DESTINATION include
+)
 
 ament_package()

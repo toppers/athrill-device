@@ -3,17 +3,9 @@
 
 #include "ros_dev_primitive_types.h"
 
-#define ROSDEV_E_OK			0U
-#define ROSDEV_E_NOENT		2U
-
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
-	typedef rosdev_int32 RosDevReturnType;
-	typedef rosdev_int32 RosDevTopicIdType;
-	typedef rosdev_int32 RosDevSizeType;
-	typedef void* RosDevDataPtrType;
 
 	typedef struct {
 		RosDevTopicIdType	id;
