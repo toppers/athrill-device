@@ -32,3 +32,5 @@ RUN bash build.bash cpp
 ENV PATH /root/workspace/athrill-target-rh850f1x/athrill/bin/linux/:${PATH}
 ENV PATH /root/workspace/hakoniwa-core/impl/asset/client/build/cpp/:${PATH}
 WORKDIR /root/workspace
+RUN ln -s /root/workspace/athrill-target-rh850f1x/athrill /root/workspace/athrill
+WORKDIR /root/workspace/athrill-device
