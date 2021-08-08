@@ -6,7 +6,7 @@
 using namespace std::chrono_literals;
 static std::shared_ptr<rclcpp::Publisher<std_msgs::msg::Int32>> publisher;
 
-RosDevReturnType ros_device_send_Int32(RosDevTopicIdType topic_id, Ros2DevInt32Type* msg)
+RosDevReturnType ros_device_send_Int32(RosDevTopicIdType topic_id, RosDevInt32Type* msg)
 {
 	if (topic_id == 0)
 	{
@@ -23,10 +23,10 @@ RosDevReturnType ros_device_send_Int32(RosDevTopicIdType topic_id, Ros2DevInt32T
 
 typedef struct {
 	bool is_exist;
-	Ros2DevInt32Type value;
+	RosDevInt32Type value;
 } RosTopicTestDataType;
 static RosTopicTestDataType test_sub_data;
-RosDevReturnType ros_device_receive_Int32(RosDevTopicIdType topic_id, Ros2DevInt32Type* msg)
+RosDevReturnType ros_device_receive_Int32(RosDevTopicIdType topic_id, RosDevInt32Type* msg)
 {
 	if (topic_id == 0) {
 		if (test_sub_data.is_exist) {

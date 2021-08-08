@@ -1,14 +1,14 @@
 #ifndef _ROS_DEVICE_GEN_H_
 #define _ROS_DEVICE_GEN_H_
 
-#include "ros2dev_gen_types.h"
+#include "rosdev_gen_types.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
-	extern RosDevReturnType ros_device_send_Int32(RosDevTopicIdType topic_id, Ros2DevInt32Type *msg);
-	extern RosDevReturnType ros_device_receive_Int32(RosDevTopicIdType topic_id, Ros2DevInt32Type* msg);
+	extern RosDevReturnType ros_device_send_Int32(RosDevTopicIdType topic_id, RosDevInt32Type *msg);
+	extern RosDevReturnType ros_device_receive_Int32(RosDevTopicIdType topic_id, RosDevInt32Type* msg);
 
 #ifdef __cplusplus
 }

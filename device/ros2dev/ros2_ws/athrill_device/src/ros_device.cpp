@@ -18,3 +18,9 @@ void ros_device_init(void)
     ros_device_gen_init(node);
     return;
 }
+
+void ros_device_fin(void)
+{
+    rclcpp::shutdown();
+    return;
+}

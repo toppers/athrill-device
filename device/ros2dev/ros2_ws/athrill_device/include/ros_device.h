@@ -6,6 +6,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 	extern void ros_device_init(void);
+	extern void ros_device_fin(void);
 
 #ifdef __cplusplus
 }

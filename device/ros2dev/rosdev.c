@@ -5,11 +5,11 @@
 
 #include "assert.h"
 #include "ros_dev.h"
-#include "ros2dev_gen.h"
+#include "rosdev_gen.h"
 #include "private/ros_dev_reg.h"
 #include "ros_device.h"
 
-static void ros2dev_do_request(RosReqType *req, uint32 addr);
+static void rosdev_do_request(RosReqType *req, uint32 addr);
 
 static Std_ReturnType ex_extdev_get_data8(MpuAddressRegionType* region, CoreIdType core_id, uint32 addr, uint8* data);
 static Std_ReturnType ex_extdev_get_data16(MpuAddressRegionType* region, CoreIdType core_id, uint32 addr, uint16* data);
@@ -45,6 +45,11 @@ static void ex_device_supply_clock(DeviceClockType* dev_clock)
 	//nothing to do
 	return;
 }
+static void ex_cleanup(void)
+{
+	ros_device_fin();
+	return;
+}
 #define EX_DEVICE_MEMORY_SIZE	(2U * 1024U) /* Bytes */
 static char ex_device_memory_data[EX_DEVICE_MEMORY_SIZE];
 
@@ -59,6 +64,7 @@ AthrillExDeviceType athrill_ex_device = {
 		.ops = &ex_device_memory_operation,
 		.devinit = ex_device_init,
 		.supply_clock = ex_device_supply_clock,
+		.cleanup = ex_cleanup,
 };
 /**************************************
  * END: external symbols
@@ -125,7 +131,7 @@ static Std_ReturnType ex_extdev_put_data32(MpuAddressRegionType* region, CoreIdT
 	/*
 	 * Do Request
 	 */
-	ros2dev_do_request(&req, addr);
+	rosdev_do_request(&req, addr);
 
 	/*
 	 * Encode Result
@@ -142,26 +148,26 @@ static Std_ReturnType ex_extdev_get_pointer(MpuAddressRegionType* region, CoreId
 }
 
 
-static void ros2dev_do_request(RosReqType* req, uint32 addr)
+static void rosdev_do_request(RosReqType* req, uint32 addr)
 {
 
 	if (addr == ROS_DEV_REG_PUB_ADDR)
 	{
-		if (req->id >= ROS2DEV_TOPIC_PUB_ID_NUM) {
+		if (req->id >= ROSDEV_TOPIC_PUB_ID_NUM) {
 			printf("ERROR: ROS2DEV pub topic id is invalid: %d\n", req->id);
 			//nothing to do
 			return;
 		}
-		ros2dev_topic_pub_func[req->id](req);
+		rosdev_topic_pub_func[req->id](req);
 	}
 	else if (addr == ROS_DEV_REG_SUB_ADDR)
 	{
-		if (req->id >= ROS2DEV_TOPIC_SUB_ID_NUM) {
+		if (req->id >= ROSDEV_TOPIC_SUB_ID_NUM) {
 			printf("ERROR: ROS2DEV Sub topic id is invalid: %d\n", req->id);
 			//nothing to do
 			return;
 		}
-		ros2dev_topic_sub_func[req->id](req);
+		rosdev_topic_sub_func[req->id](req);
 	}
 	else
 	{
