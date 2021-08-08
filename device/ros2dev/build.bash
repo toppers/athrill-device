@@ -18,11 +18,11 @@ fi
 OPT=${1}
 if [ "$OPT" = "all" ]
 then
-	CDIR=`pwd`
-	cd ../ros2_ws
-	colcon build
-	source install/setup.bash
-	cd ${CDIR}
+	#CDIR=`pwd`
+	#cd ../ros2_ws
+	#colcon build
+	#source install/setup.bash
+	#cd ${CDIR}
 	cmake ..
 	make
 else

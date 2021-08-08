@@ -5,6 +5,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /root/workspace
 
+
 #hakoniwa-core
 RUN git clone --recurse-submodules https://github.com/toppers/hakoniwa-core.git
 
@@ -33,4 +34,9 @@ ENV PATH /root/workspace/athrill-target-rh850f1x/athrill/bin/linux/:${PATH}
 ENV PATH /root/workspace/hakoniwa-core/impl/asset/client/build/cpp/:${PATH}
 WORKDIR /root/workspace
 RUN ln -s /root/workspace/athrill-target-rh850f1x/athrill /root/workspace/athrill
+
+#clang
+RUN apt-get update && apt-get install -y \
+        clang
+
 WORKDIR /root/workspace/athrill-device

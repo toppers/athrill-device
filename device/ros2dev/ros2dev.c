@@ -7,6 +7,7 @@
 #include "ros_dev.h"
 #include "ros2dev_gen.h"
 #include "private/ros_dev_reg.h"
+#include "ros_device.h"
 
 static void ros2dev_do_request(RosReqType *req, uint32 addr);
 
@@ -33,6 +34,8 @@ AthrillExDevOperationType* athrill_ex_devop;
 static void ex_device_init(MpuAddressRegionType* region, AthrillExDevOperationType* athrill_ops)
 {
 	athrill_ex_devop = athrill_ops;
+
+	ros_device_init();
 	printf("SAMPLE_DEVICE: init\n");
 	return;
 }

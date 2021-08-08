@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.5)
 project(athrill_device)
 
+#add_compile_options(-fPIC)
+#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fpic")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpic")
+
+
 # Default to C99
 if(NOT CMAKE_C_STANDARD)
   set(CMAKE_C_STANDARD 99)
@@ -28,8 +33,11 @@ include_directories(
 	../../include/private
 )
 
-add_library(athrill_device STATIC src/athrill_device.cpp)
-ament_target_dependencies(athrill_device "rclcpp")
+add_library(athrill_device STATIC 
+	src/ros_device.cpp
+	src/gen/ros_device_gen.cpp
+)
+ament_target_dependencies(athrill_device rclcpp std_msgs )
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
