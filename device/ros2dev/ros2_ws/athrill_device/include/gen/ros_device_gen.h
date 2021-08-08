@@ -11,6 +11,10 @@ extern "C" {
 	//TODO extern RosDevReturnType ros_device_receive_<type>(RosDevTopicIdType topic_id, RosDev<type>Type *msg);
 	extern RosDevReturnType ros_device_receive_Int32(RosDevTopicIdType topic_id, RosDevInt32Type* msg);
 
+	//Turtlebot3
+	extern RosDevReturnType ros_device_send_Twist(RosDevTopicIdType topic_id, RosDevTwistType* msg);
+	extern RosDevReturnType ros_device_receive_ScanData(RosDevTopicIdType topic_id, RosDevScanDataType* msg);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

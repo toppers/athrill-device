@@ -18,6 +18,8 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(sensor_msgs REQUIRED)
 
 include_directories(
 	include
@@ -32,7 +34,7 @@ add_library(athrill_device STATIC
 	src/ros_device.cpp
 	src/gen/ros_device_gen.cpp
 )
-ament_target_dependencies(athrill_device rclcpp std_msgs )
+ament_target_dependencies(athrill_device rclcpp std_msgs geometry_msgs sensor_msgs)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
