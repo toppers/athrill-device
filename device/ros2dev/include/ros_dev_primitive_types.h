@@ -21,6 +21,7 @@ typedef void* RosDevDataPtrType;
 
 #define ROSDEV_E_OK			0U
 #define ROSDEV_E_NOENT		2U
+#define ROSDEV_E_INVALID	13U
 
 
 #endif /* _ROS_DEV_PRIMITIVE_TYPES_H_ */

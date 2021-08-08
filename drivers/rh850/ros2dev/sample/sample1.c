@@ -269,26 +269,32 @@ main(void)
 TASK(MainTask)
 {
 	Ros2DevInt32Type pub_data;
-	RosReqType req;
+	Ros2DevInt32Type sub_data;
+	RosReqType req_pub;
+	RosReqType req_sub;
 
 	SetRelAlarm(MainCycArm, TICK_FOR_10MS, TICK_FOR_10MS);
 
 	pub_data.data = 0;
-	req.id = 0;
-	req.ret = 0;
-	req.datalen = sizeof(pub_data);
-	req.ptr = (RosDevDataPtrType)&pub_data;
+	req_pub.id = 0;
+	req_pub.ret = 0;
+	req_pub.datalen = sizeof(pub_data);
+	req_pub.ptr = (RosDevDataPtrType)&pub_data;
+
+	req_sub.id = 0;
+	req_sub.ret = 0;
+	req_sub.datalen = sizeof(sub_data);
+	req_sub.ptr = (RosDevDataPtrType)&sub_data;
 
 	while (1) {
 		WaitEvent(MainEvt);     /* 10msの作業時間待ち */
 		ClearEvent(MainEvt);
-		//syslog(LOG_NOTICE, "req=0x%x id=%d", &req, req.id);
-		//syslog(LOG_NOTICE, "ret=%d", req.ret);
-		//syslog(LOG_NOTICE, "datalen=%d", req.datalen);
-		//syslog(LOG_NOTICE, "ptr=0x%x", req.ptr);
-		rosdev_write_data(&req);
-		pub_data.data++;
 
+		rosdev_read_data(&req_sub);
+		if (req_sub.ret == 0) {
+			pub_data.data = sub_data.data;
+			rosdev_write_data(&req_pub);
+		}
 	}
 
 	syslog(LOG_INFO, "MainTask TERMINATE");

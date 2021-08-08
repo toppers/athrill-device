@@ -144,18 +144,23 @@ static Std_ReturnType ex_extdev_get_pointer(MpuAddressRegionType* region, CoreId
 
 static void ros2dev_do_request(RosReqType* req, uint32 addr)
 {
-	if (req->id >= ROS2DEV_TOPIC_ID_NUM) {
-		printf("ERROR: ROS2DEV topic id is invalid: %d\n", req->id);
-		//nothing to do
-		return;
-	}
 
 	if (addr == ROS_DEV_REG_PUB_ADDR)
 	{
+		if (req->id >= ROS2DEV_TOPIC_PUB_ID_NUM) {
+			printf("ERROR: ROS2DEV pub topic id is invalid: %d\n", req->id);
+			//nothing to do
+			return;
+		}
 		ros2dev_topic_pub_func[req->id](req);
 	}
 	else if (addr == ROS_DEV_REG_SUB_ADDR)
 	{
+		if (req->id >= ROS2DEV_TOPIC_SUB_ID_NUM) {
+			printf("ERROR: ROS2DEV Sub topic id is invalid: %d\n", req->id);
+			//nothing to do
+			return;
+		}
 		ros2dev_topic_sub_func[req->id](req);
 	}
 	else
