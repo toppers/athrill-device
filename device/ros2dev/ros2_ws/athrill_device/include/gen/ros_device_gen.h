@@ -6,8 +6,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
+	//TODO extern RosDevReturnType ros_device_send_<type>(RosDevTopicIdType topic_id, RosDev<type>Type *msg);
 	extern RosDevReturnType ros_device_send_Int32(RosDevTopicIdType topic_id, RosDevInt32Type *msg);
+	//TODO extern RosDevReturnType ros_device_receive_<type>(RosDevTopicIdType topic_id, RosDev<type>Type *msg);
 	extern RosDevReturnType ros_device_receive_Int32(RosDevTopicIdType topic_id, RosDevInt32Type* msg);
 
 #ifdef __cplusplus

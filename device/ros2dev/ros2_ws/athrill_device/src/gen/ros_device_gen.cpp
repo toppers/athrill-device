@@ -4,15 +4,21 @@
 #include <std_msgs/msg/int32.hpp>
 
 using namespace std::chrono_literals;
-static std::shared_ptr<rclcpp::Publisher<std_msgs::msg::Int32>> publisher;
+//TODO <package>::msg
+using namespace std_msgs::msg;
 
+//TODO static std::shared_ptr<rclcpp::Publisher<type>> publisher_<topic_name>;
+static std::shared_ptr<rclcpp::Publisher<Int32>> publisher_test_pub_data;
+
+//TODO RosDevReturnType ros_device_send_<type>(RosDevTopicIdType topic_id, RosDev<type>Type* msg)
 RosDevReturnType ros_device_send_Int32(RosDevTopicIdType topic_id, RosDevInt32Type* msg)
 {
 	if (topic_id == 0)
 	{
+		//TODO
 		auto topic_msg = std::make_unique<std_msgs::msg::Int32>();
 		topic_msg->data = msg->data;
-		publisher->publish(std::move(topic_msg));
+		publisher_test_pub_data->publish(std::move(topic_msg));
 		return ROSDEV_E_OK;
 	}
 	else 
@@ -21,17 +27,21 @@ RosDevReturnType ros_device_send_Int32(RosDevTopicIdType topic_id, RosDevInt32Ty
 	}
 }
 
+//TODO Ros<TopicName>DataType
 typedef struct {
 	bool is_exist;
 	RosDevInt32Type value;
-} RosTopicTestDataType;
-static RosTopicTestDataType test_sub_data;
+} RosTopicTestSubDataType;
+
+//TODO static RosTopic<TopicName>Type buffer_<topic_name>;
+static RosTopicTestSubDataType buffer_test_sub_data;
 RosDevReturnType ros_device_receive_Int32(RosDevTopicIdType topic_id, RosDevInt32Type* msg)
 {
 	if (topic_id == 0) {
-		if (test_sub_data.is_exist) {
-			*msg = test_sub_data.value;
-			test_sub_data.is_exist = false;
+		//TODO
+		if (buffer_test_sub_data.is_exist) {
+			*msg = buffer_test_sub_data.value;
+			buffer_test_sub_data.is_exist = false;
 			return ROSDEV_E_OK;
 		}
 		else
@@ -44,11 +54,11 @@ RosDevReturnType ros_device_receive_Int32(RosDevTopicIdType topic_id, RosDevInt3
 		return ROSDEV_E_INVALID;
 	}
 }
-
-static void subCallback(const std_msgs::msg::Int32::SharedPtr msg) 
+//TODO static void <TopicName>Callback(const <Type>::SharedPtr msg) 
+static void TestSubDataCallback(const Int32::SharedPtr msg) 
 {
-	test_sub_data.is_exist = true;
-	test_sub_data.value.data = msg->data;
+	buffer_test_sub_data.is_exist = true;
+	buffer_test_sub_data.value.data = msg->data;
 	return;
 }
 
@@ -56,7 +66,8 @@ static void ros_node(std::shared_ptr<rclcpp::Node> node)
 {
     rclcpp::WallRate rate(10ms);
 
-	auto subscriber = node->create_subscription<std_msgs::msg::Int32>("test_sub_data", 1, subCallback);
+	//TODO 	auto subscriber_<topic_name> = node->create_subscription<<Type>>("test_sub_data", 1, TestSubDataCallback);
+	auto subscriber_test_sub_data = node->create_subscription<Int32>("test_sub_data", 1, TestSubDataCallback);
 	while (rclcpp::ok()) {
         rclcpp::spin_some(node);
         rate.sleep();
@@ -67,7 +78,8 @@ static void ros_node(std::shared_ptr<rclcpp::Node> node)
 
 void ros_device_gen_init(std::shared_ptr<rclcpp::Node> node)
 {
-	publisher = node->create_publisher<std_msgs::msg::Int32>("test_pub_data", 1);
+	//TODO publisher_<topic_name> = node->create_publisher<<Type>>("<topic_name>", 1);
+	publisher_test_pub_data = node->create_publisher<Int32>("test_pub_data", 1);
 	std::thread thr(ros_node, node);
 	thr.detach();
 	return;

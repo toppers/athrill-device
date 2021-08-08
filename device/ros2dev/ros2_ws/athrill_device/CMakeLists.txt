@@ -22,7 +22,7 @@ find_package(rclcpp REQUIRED)
 include_directories(
 	include
 	include/gen
-	src/gen
+	src
 	../../gen
 	../../include
 	../../include/private
