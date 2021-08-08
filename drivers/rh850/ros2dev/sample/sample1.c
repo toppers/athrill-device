@@ -71,7 +71,7 @@
 
 #include "ros_dev_com.h"
 #include "ros_dev.h"
-#include "ros2dev_gen_types.h"
+#include "rosdev_gen_types.h"
 
 #define GetHwCnt(x, y)
 #define GetAppModeInfo()	(0)
@@ -268,8 +268,8 @@ main(void)
  */
 TASK(MainTask)
 {
-	Ros2DevInt32Type pub_data;
-	Ros2DevInt32Type sub_data;
+	RosDevInt32Type pub_data;
+	RosDevInt32Type sub_data;
 	RosReqType req_pub;
 	RosReqType req_sub;
 
