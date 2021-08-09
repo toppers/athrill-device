@@ -20,6 +20,17 @@ static MpthrOperationType hakoniwa_asset_tx_op = {
 	.do_proc = hakoniwa_asset_thread_do_tx_proc,
 };
 
+static int hakoniwa_packet_actuator_raw_encode(const HakoniwaAssetDeviceType* in, HakoniwaPacketBufferType* out)
+{
+	memcpy(out->datap, (char*)&in->asset_time, sizeof(in->asset_time));
+	return sizeof(in->asset_time);
+}
+void hakoniwa_packet_sensor_raw_decode(const HakoniwaPacketBufferType* in, HakoniwaCoreDeviceType* out)
+{
+	out->version = 0x1;
+	memcpy((char*)&out->hakoniwa_time, in->datap, sizeof(out->hakoniwa_time));
+	return;
+}
 
 AthrillExDevOperationType *athrill_ex_devop;
 void ex_device_init(MpuAddressRegionType *region, AthrillExDevOperationType *athrill_ops)
@@ -69,6 +80,9 @@ void ex_device_init(MpuAddressRegionType *region, AthrillExDevOperationType *ath
 
 	hakoniwa_asset_controller.asset_device.version = 0x1;
 
+	hakoniwa_asset_controller.packet_actuator_encode = hakoniwa_packet_actuator_raw_encode;
+	hakoniwa_asset_controller.packet_sensor_decode = hakoniwa_packet_sensor_raw_decode;
+
 	return;
 }
 static void hakoniwa_send_packet(void);
@@ -106,7 +120,7 @@ static void hakoniwa_send_packet(void)
 
 	packet.datap = hakoniwa_asset_controller.udp_comm.write_data.buffer;
 	packet.len = sizeof(hakoniwa_asset_controller.udp_comm.write_data.buffer);
-	hakoniwa_asset_controller.udp_comm.write_data.len = hakoniwa_packet_actuator_encode(
+	hakoniwa_asset_controller.udp_comm.write_data.len = hakoniwa_asset_controller.packet_actuator_encode(
     		(const HakoniwaAssetDeviceType *)&hakoniwa_asset_controller.asset_device, &packet);
 
 	err = athrill_ex_devop->libs.udp.remote_write(&hakoniwa_asset_controller.udp_comm, hakoniwa_asset_controller.remote_ipaddr);
@@ -145,7 +159,7 @@ static Std_ReturnType hakoniwa_asset_thread_do_proc(MpthrIdType id)
 		}
 		in.datap = hakoniwa_asset_controller.udp_comm.read_data.buffer;
 		in.len = hakoniwa_asset_controller.udp_comm.read_data.len;
-		hakoniwa_packet_sensor_decode((const HakoniwaPacketBufferType *)&in, &hakoniwa_asset_controller.core_device);
+		hakoniwa_asset_controller.packet_sensor_decode((const HakoniwaPacketBufferType *)&in, &hakoniwa_asset_controller.core_device);
 
 		//printf("recv: time=%llu\n", hakoniwa_asset_controller.core_device.hakoniwa_time);
 		//hakoniwa_send_packet();

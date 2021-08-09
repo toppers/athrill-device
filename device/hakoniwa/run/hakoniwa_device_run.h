@@ -16,6 +16,8 @@ typedef struct {
     uint32						cpu_freq;
     char						*remote_ipaddr;
     char						*local_ipaddr;
+    int (*packet_actuator_encode) (const HakoniwaAssetDeviceType* in, HakoniwaPacketBufferType* out);
+    void (*packet_sensor_decode) (const HakoniwaPacketBufferType* in, HakoniwaCoreDeviceType* out);
 } HakoniwaAssetDeviceControllerType;
 
 extern HakoniwaAssetDeviceControllerType hakoniwa_asset_controller;

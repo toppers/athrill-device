@@ -1,0 +1,4 @@
+ROM, 0x00000000, 1024
+RAM, 0xFEDE8000, 512
+DEV, 0x20000000, ./librosdev.so
+DEV, 0x40000000, ./libhakoniwa_device.so
