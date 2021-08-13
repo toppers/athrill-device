@@ -1,9 +1,25 @@
 #include "hakoniwa_device_run.h"
 #include "assert.h"
 #include <stdio.h>
+#include <pthread.h>
 
 #define DEFAULT_CPU_FREQ	100
 HakoniwaAssetDeviceControllerType hakoniwa_asset_controller;
+
+typedef struct {
+	pthread_mutex_t     mutex;
+	pthread_cond_t		cond;
+	std_bool			is_wait;
+} HakoniwaDeviceSyncType;
+static HakoniwaDeviceSyncType hakoniwa_device_sync;
+
+static void hakoniwa_device_sync_init(void)
+{
+	pthread_cond_init(&hakoniwa_device_sync.cond, NULL);
+	pthread_mutex_init(&hakoniwa_device_sync.mutex, NULL);
+	hakoniwa_device_sync.is_wait = FALSE;
+	return;
+}
 
 
 static Std_ReturnType hakoniwa_asset_thread_do_init(MpthrIdType id);
@@ -39,6 +55,8 @@ void ex_device_init(MpuAddressRegionType *region, AthrillExDevOperationType *ath
 	Std_ReturnType err;
 	MpthrIdType thrid;
 	athrill_ex_devop = athrill_ops;
+
+	hakoniwa_device_sync_init();
 	hakoniwa_asset_controller.cpu_freq = DEFAULT_CPU_FREQ; /* 100MHz */
 	(void)athrill_ex_devop->param.get_devcfg_value("DEVICE_CONFIG_TIMER_FD", &hakoniwa_asset_controller.cpu_freq);
 
@@ -87,18 +105,21 @@ void ex_device_init(MpuAddressRegionType *region, AthrillExDevOperationType *ath
 }
 static void hakoniwa_send_packet(void);
 
-void ex_device_supply_clock(DeviceClockType *dev_clock)
+
+static std_bool hakoniwa_device_supply_clock(DeviceClockType* dev_clock)
 {
 	uint64 interval_ticks;
 	uint64 hakoniwa_time_ticks;
 
 	hakoniwa_time_ticks = hakoniwa_asset_controller.core_device.hakoniwa_time * ((uint64)hakoniwa_asset_controller.cpu_freq);
 	if (hakoniwa_time_ticks == 0) {
-		dev_clock->min_intr_interval = 1U;
+		//printf("CAN NOT STEP: hakoniwa_time_ticks=0\n");
+		return FALSE;
 	}
 	else if (dev_clock->min_intr_interval != DEVICE_CLOCK_MAX_INTERVAL) {
 		if ((hakoniwa_time_ticks <= dev_clock->clock)) {
-			interval_ticks = 1U;
+			//printf("CAN NOT STEP: hakoniwa_time_ticks=%lld dev_clock->clock=%lld\n", hakoniwa_time_ticks, dev_clock->clock);
+			return FALSE;
 		}
 		else {
 			interval_ticks = (hakoniwa_time_ticks - dev_clock->clock);
@@ -108,7 +129,23 @@ void ex_device_supply_clock(DeviceClockType *dev_clock)
 		}
 	}
 
-	hakoniwa_asset_controller.asset_device.asset_time = dev_clock->clock /  ((uint64)hakoniwa_asset_controller.cpu_freq);
+	return TRUE;
+}
+
+
+void ex_device_supply_clock(DeviceClockType *dev_clock)
+{
+	while (TRUE) {
+		std_bool ret = hakoniwa_device_supply_clock(dev_clock);
+		hakoniwa_asset_controller.asset_device.asset_time = dev_clock->clock / ((uint64)hakoniwa_asset_controller.cpu_freq);
+		if (ret == TRUE) {
+			break;
+		}
+		pthread_mutex_lock(&hakoniwa_device_sync.mutex);
+		hakoniwa_device_sync.is_wait = TRUE;
+		pthread_cond_wait(&hakoniwa_device_sync.cond, &hakoniwa_device_sync.mutex);
+		pthread_mutex_unlock(&hakoniwa_device_sync.mutex);
+	}
 
 	return;
 }
@@ -123,6 +160,7 @@ static void hakoniwa_send_packet(void)
 	hakoniwa_asset_controller.udp_comm.write_data.len = hakoniwa_asset_controller.packet_actuator_encode(
     		(const HakoniwaAssetDeviceType *)&hakoniwa_asset_controller.asset_device, &packet);
 
+	//printf("dev_clock->clock=%lld\n", hakoniwa_asset_controller.asset_device.asset_time);
 	err = athrill_ex_devop->libs.udp.remote_write(&hakoniwa_asset_controller.udp_comm, hakoniwa_asset_controller.remote_ipaddr);
 	ASSERT(err == STD_E_OK);
 	return;
@@ -161,6 +199,12 @@ static Std_ReturnType hakoniwa_asset_thread_do_proc(MpthrIdType id)
 		in.len = hakoniwa_asset_controller.udp_comm.read_data.len;
 		hakoniwa_asset_controller.packet_sensor_decode((const HakoniwaPacketBufferType *)&in, &hakoniwa_asset_controller.core_device);
 
+		pthread_mutex_lock(&hakoniwa_device_sync.mutex);
+		if (hakoniwa_device_sync.is_wait == TRUE) {
+			pthread_cond_signal(&hakoniwa_device_sync.cond);
+			hakoniwa_device_sync.is_wait = FALSE;
+		}
+		pthread_mutex_unlock(&hakoniwa_device_sync.mutex);
 		//printf("recv: time=%llu\n", hakoniwa_asset_controller.core_device.hakoniwa_time);
 		//hakoniwa_send_packet();
 	}
