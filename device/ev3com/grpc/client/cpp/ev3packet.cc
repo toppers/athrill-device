@@ -85,7 +85,7 @@ void ev3packet_sensor_decode(const Ev3PacketBufferType *in, Ev3RawBufferType *ou
     CONV_UINT32(&out->datap[EV3_SENSOR_EXTSIZE_ADDR]) = packet.mutable_header()->ext_size();
     //printf("ext_size=0x%x\n", packet.mutable_header()->ext_size());
 
-    memcpy(CONV_CHARP(&out[EV3_GPIO_BTN_ADDR]), packet.mutable_body()->buttons().c_str(), 1U);
+    memcpy(CONV_CHARP(&out->datap[EV3_GPIO_BTN_ADDR]), packet.mutable_body()->buttons().c_str(), 1U);
     CONV_UINT32(&out->datap[EV3_SENSOR_ADDR_AMBIENT]) =  0;
     CONV_UINT32(&out->datap[EV3_SENSOR_ADDR_COLOR0]) =  packet.mutable_body()->color_sensors(0).color();
     CONV_UINT32(&out->datap[EV3_SENSOR_ADDR_REFLECT0]) =  packet.mutable_body()->color_sensors(0).reflect();
