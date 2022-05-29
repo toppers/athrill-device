@@ -6,13 +6,18 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpic")
 
 project(HakoTimeDevice C CXX)
 
+add_subdirectory(hakoniwa-core-cpp-client)
+
+set(HAKO_CORE_SOURCE_DIR "${PROJECT_SOURCE_DIR}/hakoniwa-core-cpp-client")
+set(HAKO_C_SOURCE_DIR "${HAKO_CORE_SOURCE_DIR}/src/hakoc")
+
 add_compile_options(-g)
 add_compile_options(-Wall)
 add_compile_options(-Wunknown-pragmas)
 add_compile_options(-Wtrigraphs)
 
 set(CMAKE_C_FLAGS "-std=gnu99")
-set(CMAKE_CXX_FLAGS "-std=c++11")
+set(CMAKE_CXX_FLAGS "-std=c++17")
 
 set(CORE_DIR ../../../athrill/src)
 
@@ -25,6 +30,7 @@ include_directories("${CORE_DIR}/lib")
 include_directories(../lib/include)
 include_directories(../lib/src)
 include_directories(.)
+include_directories("${HAKO_C_SOURCE_DIR}/src")
 
 add_compile_definitions(OS_LINUX)
 add_compile_definitions(ATHRILL_EXT_DEVICE)
@@ -34,6 +40,9 @@ add_library(hakotime SHARED
     hakoniwa_device.c
     io/hakoniwa_device_io.c
     run/hakoniwa_device_run.c
-    )
+)
+
 target_compile_options(hakotime PRIVATE -fPIC)
-target_link_libraries(hakotime )
+target_link_libraries(hakotime
+    hakoc
+)

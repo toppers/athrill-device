@@ -1,28 +1,25 @@
 #include "hakoniwa_device_run.h"
 #include "assert.h"
+#include "hako_client.h"
 #include <stdio.h>
 #include <pthread.h>
 
 #define DEFAULT_CPU_FREQ	100
 HakoniwaAssetDeviceControllerType hakoniwa_asset_controller;
 
-typedef struct {
-	pthread_mutex_t     mutex;
-	pthread_cond_t		cond;
-	std_bool			is_wait;
-} HakoniwaDeviceSyncType;
-static HakoniwaDeviceSyncType hakoniwa_device_sync;
-
-
 AthrillExDevOperationType *athrill_ex_devop;
 void ex_device_init(MpuAddressRegionType *region, AthrillExDevOperationType *athrill_ops)
 {
+	char* asset_name = NULL;;
 	athrill_ex_devop = athrill_ops;
 
 	hakoniwa_asset_controller.cpu_freq = DEFAULT_CPU_FREQ; /* 100MHz */
 	(void)athrill_ex_devop->param.get_devcfg_value("DEVICE_CONFIG_TIMER_FD", &hakoniwa_asset_controller.cpu_freq);
-
-
+	(void)athrill_ex_devop->param.get_devcfg_string("DEBUG_FUNC_HAKO_ASSET_NAME", &asset_name);
+	int err = hako_client_init(asset_name);
+	if (err != 0) {
+		printf("ERROR: can not init hako_client(): %s\n", asset_name);
+	}
 	return;
 }
 
@@ -31,7 +28,7 @@ static std_bool hakoniwa_device_supply_clock(DeviceClockType* dev_clock)
 {
 	uint64 interval_ticks;
 	uint64 hakoniwa_time_ticks;
-	uint64 hakoniwa_time = 0; //TODO
+	uint64 hakoniwa_time = (uint64)hako_client_get_worldtime();
 
 	hakoniwa_time_ticks = hakoniwa_time * ((uint64)hakoniwa_asset_controller.cpu_freq);
 	if (hakoniwa_time_ticks == 0) {
@@ -57,19 +54,11 @@ static std_bool hakoniwa_device_supply_clock(DeviceClockType* dev_clock)
 
 void ex_device_supply_clock(DeviceClockType *dev_clock)
 {
-	while (TRUE) {
-		std_bool ret = hakoniwa_device_supply_clock(dev_clock);
-		//TODO
-		uint64 asset_time = 0;
-		asset_time = dev_clock->clock / ((uint64)hakoniwa_asset_controller.cpu_freq);
-		if (ret == TRUE) {
-			break;
-		}
-		pthread_mutex_lock(&hakoniwa_device_sync.mutex);
-		hakoniwa_device_sync.is_wait = TRUE;
-		pthread_cond_wait(&hakoniwa_device_sync.cond, &hakoniwa_device_sync.mutex);
-		pthread_mutex_unlock(&hakoniwa_device_sync.mutex);
+	std_bool ret = hakoniwa_device_supply_clock(dev_clock);
+	if (ret == FALSE) {
+		dev_clock->min_intr_interval = 1U;
 	}
-
+	uint64 sim_time = ( dev_clock->clock / ((uint64)hakoniwa_asset_controller.cpu_freq) );
+	hako_client_notify_simtime((hako_time_t)sim_time);
 	return;
 }
