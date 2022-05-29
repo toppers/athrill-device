@@ -19,6 +19,7 @@ void ex_device_init(MpuAddressRegionType *region, AthrillExDevOperationType *ath
 	int err = hako_client_init(asset_name);
 	if (err != 0) {
 		printf("ERROR: can not init hako_client(): %s\n", asset_name);
+		exit(1);
 	}
 	return;
 }
