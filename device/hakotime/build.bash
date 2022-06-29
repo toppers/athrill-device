@@ -8,6 +8,13 @@ then
 	exit 1
 fi
 
+if [ -d hakoniwa-core-cpp-client ]
+then
+	:
+else
+	ln -s ../../third-party/hakoniwa-core-cpp-client .
+fi
+
 cd cmake-build
 if [ $# -eq 0 ]
 then
