@@ -26,7 +26,6 @@ typedef struct {
 } Ev3ComRxDataHeadType;
 
 
-
 #define EV3COM_TX_DATA_BASE	(EV3COM_BASE + EV3COM_RX_DATA_SIZE)
 #define EV3COM_TX_DATA_SIZE	0x1000
 
