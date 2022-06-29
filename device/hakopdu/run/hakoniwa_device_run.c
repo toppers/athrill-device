@@ -1,4 +1,5 @@
 #include "hakoniwa_device_run.h"
+#include "hakoniwa_device_io.h"
 #include "assert.h"
 #include "hako_client.h"
 #include <stdio.h>
@@ -21,6 +22,7 @@ void ex_device_init(MpuAddressRegionType *region, AthrillExDevOperationType *ath
 		printf("ERROR: can not init hako_client(): %s\n", asset_name);
 		exit(1);
 	}
+	ex_device_memory_init();
 	return;
 }
 
