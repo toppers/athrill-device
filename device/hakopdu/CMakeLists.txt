@@ -11,6 +11,7 @@ add_subdirectory(hakoniwa-core-cpp-client)
 set(HAKO_CORE_SOURCE_DIR "${PROJECT_SOURCE_DIR}/hakoniwa-core-cpp-client")
 set(HAKO_C_SOURCE_DIR "${HAKO_CORE_SOURCE_DIR}/src/hakoc")
 
+set(HAKO_IO_PLUGIN "ev3")
 add_compile_options(-g)
 add_compile_options(-Wall)
 add_compile_options(-Wunknown-pragmas)
@@ -38,8 +39,12 @@ add_compile_definitions(CXX_SAMPLE)
 
 add_library(hakopdu SHARED
     hakoniwa_device.c
-    io/hakoniwa_device_io.c
+    io/plugins/${HAKO_IO_PLUGIN}/hakoniwa_device_io.c
     run/hakoniwa_device_run.c
+)
+target_include_directories(hakopdu
+    PRIVATE io
+    PRIVATE io/plugins/${HAKO_IO_PLUGIN}
 )
 
 target_compile_options(hakopdu PRIVATE -fPIC)
