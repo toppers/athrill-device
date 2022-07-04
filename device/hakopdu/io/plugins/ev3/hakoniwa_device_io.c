@@ -58,7 +58,7 @@ void ex_device_memory_init(void)
 		tx_headp->ext_off = EV3COM_TX_DATA_HEAD_EXT_OFF;
 		tx_headp->ext_size = EV3COM_TX_DATA_HEAD_EXT_SIZE;
 	}
-	err = hako_client_create_pdu_channel(ex_device_hakopdu_asset_name, ev3com_control.tx_channel_id, EV3COM_TX_DATA_SIZE);
+	err = hako_client_create_pdu_channel(ev3com_control.tx_channel_id, EV3COM_TX_DATA_SIZE);
 	ASSERT(err == 0);
 	return;
 }
@@ -72,11 +72,12 @@ void ex_device_memory_supply_clock(void)
 			(void)hako_client_read_pdu(ex_device_hakopdu_asset_name, ev3com_control.rx_channel_id, (char*)ev3com_control.rx_data, EV3COM_RX_DATA_SIZE);
 		}
         hako_client_notify_read_pdu_done(ex_device_hakopdu_asset_name);
-    }
-    else if (hako_client_is_pdu_sync_mode(ex_device_hakopdu_asset_name) == 0) {
 		if (ev3com_control.is_tx_dirty == TRUE) {
 			(void)hako_client_read_pdu(ex_device_hakopdu_asset_name, ev3com_control.tx_channel_id, (char*)ev3com_control.tx_data, EV3COM_TX_DATA_SIZE);
 		}
+    }
+    else if (hako_client_is_pdu_sync_mode(ex_device_hakopdu_asset_name) == 0) {
+		(void)hako_client_read_pdu(ex_device_hakopdu_asset_name, ev3com_control.tx_channel_id, (char*)ev3com_control.tx_data, EV3COM_TX_DATA_SIZE);
         hako_client_notify_write_pdu_done(ex_device_hakopdu_asset_name);
 		ev3com_control.is_tx_dirty = FALSE;
     }
