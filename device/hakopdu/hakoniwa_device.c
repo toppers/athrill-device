@@ -1,7 +1,7 @@
 #include "run/hakoniwa_device_run.h"
 #include "io/hakoniwa_device_io.h"
 
-#define EX_DEVICE_MEMORY_SIZE	(1U * 1024U) /* Bytes */
+#define EX_DEVICE_MEMORY_SIZE		(1024U * 1024U)
 static char ex_device_memory_data[EX_DEVICE_MEMORY_SIZE];
 
 /**************************************
