@@ -29,9 +29,12 @@ static std_bool hakoniwa_device_supply_clock(DeviceClockType* dev_clock)
 {
 	uint64 interval_ticks;
 	uint64 hakoniwa_time_ticks;
+	if (hako_client_is_simulation_mode() != 0) {
+		return FALSE;
+	}
 
 	while (TRUE) {
-		if ((hako_client_is_simulation_mode() == 0) && (hako_client_is_pdu_created() == 0)) {
+		if (hako_client_is_pdu_created() == 0) {
 			break;
 		}
 		usleep(1000 * 100);
