@@ -14,7 +14,8 @@ void ex_device_init(MpuAddressRegionType *region, AthrillExDevOperationType *ath
 	athrill_ex_devop = athrill_ops;
 
 	hakoniwa_asset_controller.cpu_freq = DEFAULT_CPU_FREQ; /* 100MHz */
-	(void)athrill_ex_devop->param.get_devcfg_value("DEVICE_CONFIG_TIMER_FD", &hakoniwa_asset_controller.cpu_freq);
+	(void)athrill_ex_devop->param.get_devcfg_value("DEVICE_CONFIG_CPU_FREQ_MZ", &hakoniwa_asset_controller.cpu_freq);
+	(void)athrill_ex_devop->param.get_devcfg_value("DEVICE_CONFIG_TIMER_FD", &hakoniwa_asset_controller.timer_fd);
 	(void)athrill_ex_devop->param.get_devcfg_string("DEBUG_FUNC_HAKO_ASSET_NAME", &asset_name);
 	int err = hako_client_init(asset_name);
 	if (err != 0) {
