@@ -7,8 +7,8 @@ extern void ex_device_init(MpuAddressRegionType *region, AthrillExDevOperationTy
 extern void ex_device_supply_clock(DeviceClockType *dev_clock);
 
 typedef struct {
-
     uint32						cpu_freq;
+    uint32						timer_fd;
 } HakoniwaAssetDeviceControllerType;
 
 extern HakoniwaAssetDeviceControllerType hakoniwa_asset_controller;
