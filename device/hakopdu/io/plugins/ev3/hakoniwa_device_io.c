@@ -68,7 +68,7 @@ void ex_device_memory_supply_clock(void)
 		/* nothing to do */
 	}
     else if (hako_client_is_simulation_mode() == 0) {
-		if (hako_client_pdu_is_dirty(ev3com_control.rx_channel_id) == 0) {
+		if (hako_client_pdu_is_dirty(ex_device_hakopdu_asset_name, ev3com_control.rx_channel_id) == 0) {
 			(void)hako_client_read_pdu(ex_device_hakopdu_asset_name, ev3com_control.rx_channel_id, (char*)ev3com_control.rx_data, EV3COM_RX_DATA_COMM_SIZE);
 		}
         hako_client_notify_read_pdu_done(ex_device_hakopdu_asset_name);

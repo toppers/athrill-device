@@ -66,5 +66,7 @@ void ex_device_supply_clock(DeviceClockType *dev_clock)
 	}
 	uint64 sim_time = ( dev_clock->clock / ((uint64)hakoniwa_asset_controller.cpu_freq) );
 	hako_client_notify_simtime((hako_time_t)sim_time);
+	//printf("akoniwa_time_ticks=%lld dev_clock->clock=%lld\n", sim_time, dev_clock->clock);
+
 	return;
 }
