@@ -3,6 +3,7 @@
 #include "athrill_exdev.h"
 #include "assert.h"
 #include "hako_client.h"
+#include "ev3packet.h"
 #include <stdio.h>
 
 static Std_ReturnType ex_hakoniwadev_get_data8(MpuAddressRegionType *region, CoreIdType core_id, uint32 addr, uint8 *data);
@@ -28,9 +29,11 @@ MpuAddressRegionOperationType	ex_device_memory_operation = {
 typedef struct {
 	HakoPduChannelIdType		tx_channel_id;
 	uint8						tx_data[EV3COM_TX_DATA_SIZE];
+	uint8						tx_packet_data[EV3COM_TX_DATA_COMM_SIZE];
 	std_bool					is_tx_dirty;
 	HakoPduChannelIdType		rx_channel_id;
 	uint8						rx_data[EV3COM_RX_DATA_SIZE];
+	uint8						rx_packet_data[EV3COM_RX_DATA_COMM_SIZE];
 } Ev3ComControlType;
 static Ev3ComControlType ev3com_control;
 
@@ -69,11 +72,13 @@ void ex_device_memory_supply_clock(void)
 	}
     else if (hako_client_is_simulation_mode() == 0) {
 		if (hako_client_pdu_is_dirty(ex_device_hakopdu_asset_name, ev3com_control.rx_channel_id) == 0) {
-			(void)hako_client_read_pdu(ex_device_hakopdu_asset_name, ev3com_control.rx_channel_id, (char*)ev3com_control.rx_data, EV3COM_RX_DATA_COMM_SIZE);
+			(void)hako_client_read_pdu(ex_device_hakopdu_asset_name, ev3com_control.rx_channel_id, (char*)ev3com_control.rx_packet_data, EV3COM_RX_DATA_COMM_SIZE);
+			ev3packet_sensor_decode((const Hako_Ev3PduSensor *)ev3com_control.rx_packet_data, (char*)ev3com_control.rx_packet_data);
 		}
         hako_client_notify_read_pdu_done(ex_device_hakopdu_asset_name);
 		if (ev3com_control.is_tx_dirty == TRUE) {
-			(void)hako_client_write_pdu(ex_device_hakopdu_asset_name, ev3com_control.tx_channel_id, (char*)ev3com_control.tx_data, EV3COM_TX_DATA_COMM_SIZE);
+			ev3packet_actuator_encode((const char*)ev3com_control.tx_data, (Hako_Ev3PduActuator *)ev3com_control.tx_packet_data);
+			(void)hako_client_write_pdu(ex_device_hakopdu_asset_name, ev3com_control.tx_channel_id, (char*)ev3com_control.tx_packet_data, EV3COM_TX_DATA_COMM_SIZE);
 		}
     }
     else if (hako_client_is_pdu_sync_mode(ex_device_hakopdu_asset_name) == 0) {
