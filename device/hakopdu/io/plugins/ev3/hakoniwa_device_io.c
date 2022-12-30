@@ -82,7 +82,8 @@ void ex_device_memory_supply_clock(void)
 		}
     }
     else if (hako_client_is_pdu_sync_mode(ex_device_hakopdu_asset_name) == 0) {
-		(void)hako_client_write_pdu(ex_device_hakopdu_asset_name, ev3com_control.tx_channel_id, (char*)ev3com_control.tx_data, EV3COM_TX_DATA_COMM_SIZE);
+		ev3packet_actuator_encode((const char*)ev3com_control.tx_data, (Hako_Ev3PduActuator *)ev3com_control.tx_packet_data);
+		(void)hako_client_write_pdu(ex_device_hakopdu_asset_name, ev3com_control.tx_channel_id, (char*)ev3com_control.tx_packet_data, EV3COM_TX_DATA_COMM_SIZE);
         hako_client_notify_write_pdu_done(ex_device_hakopdu_asset_name);
 		ev3com_control.is_tx_dirty = FALSE;
     }
