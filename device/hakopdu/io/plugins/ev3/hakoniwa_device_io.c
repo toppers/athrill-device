@@ -73,7 +73,7 @@ void ex_device_memory_supply_clock(void)
     else if (hako_client_is_simulation_mode() == 0) {
 		if (hako_client_pdu_is_dirty(ex_device_hakopdu_asset_name, ev3com_control.rx_channel_id) == 0) {
 			(void)hako_client_read_pdu(ex_device_hakopdu_asset_name, ev3com_control.rx_channel_id, (char*)ev3com_control.rx_packet_data, EV3COM_RX_DATA_COMM_SIZE);
-			ev3packet_sensor_decode((const Hako_Ev3PduSensor *)ev3com_control.rx_packet_data, (char*)ev3com_control.rx_packet_data);
+			ev3packet_sensor_decode((const Hako_Ev3PduSensor *)ev3com_control.rx_packet_data, (char*)ev3com_control.rx_data);
 		}
         hako_client_notify_read_pdu_done(ex_device_hakopdu_asset_name);
 		if (ev3com_control.is_tx_dirty == TRUE) {
