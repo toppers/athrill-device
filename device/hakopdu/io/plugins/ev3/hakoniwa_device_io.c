@@ -71,19 +71,19 @@ void ex_device_memory_supply_clock(void)
 		/* nothing to do */
 	}
     else if (hako_client_is_simulation_mode() == 0) {
-		if (hako_client_pdu_is_dirty(ex_device_hakopdu_asset_name, ev3com_control.rx_channel_id) == 0) {
-			(void)hako_client_read_pdu(ex_device_hakopdu_asset_name, ev3com_control.rx_channel_id, (char*)ev3com_control.rx_packet_data, EV3COM_RX_DATA_COMM_SIZE);
+		if (hako_client_pdu_is_dirty(ex_device_hakopdu_asset_name, ex_device_hakopdu_robo_name, ev3com_control.rx_channel_id) == 0) {
+			(void)hako_client_read_pdu(ex_device_hakopdu_asset_name, ex_device_hakopdu_robo_name, ev3com_control.rx_channel_id, (char*)ev3com_control.rx_packet_data, EV3COM_RX_DATA_COMM_SIZE);
 			ev3packet_sensor_decode((const Hako_Ev3PduSensor *)ev3com_control.rx_packet_data, (char*)ev3com_control.rx_data);
 		}
         hako_client_notify_read_pdu_done(ex_device_hakopdu_asset_name);
 		if (ev3com_control.is_tx_dirty == TRUE) {
 			ev3packet_actuator_encode((const char*)ev3com_control.tx_data, (Hako_Ev3PduActuator *)ev3com_control.tx_packet_data);
-			(void)hako_client_write_pdu(ex_device_hakopdu_asset_name, ev3com_control.tx_channel_id, (char*)ev3com_control.tx_packet_data, EV3COM_TX_DATA_COMM_SIZE);
+			(void)hako_client_write_pdu(ex_device_hakopdu_asset_name, ex_device_hakopdu_robo_name, ev3com_control.tx_channel_id, (char*)ev3com_control.tx_packet_data, EV3COM_TX_DATA_COMM_SIZE);
 		}
     }
     else if (hako_client_is_pdu_sync_mode(ex_device_hakopdu_asset_name) == 0) {
 		ev3packet_actuator_encode((const char*)ev3com_control.tx_data, (Hako_Ev3PduActuator *)ev3com_control.tx_packet_data);
-		(void)hako_client_write_pdu(ex_device_hakopdu_asset_name, ev3com_control.tx_channel_id, (char*)ev3com_control.tx_packet_data, EV3COM_TX_DATA_COMM_SIZE);
+		(void)hako_client_write_pdu(ex_device_hakopdu_asset_name, ex_device_hakopdu_robo_name, ev3com_control.tx_channel_id, (char*)ev3com_control.tx_packet_data, EV3COM_TX_DATA_COMM_SIZE);
         hako_client_notify_write_pdu_done(ex_device_hakopdu_asset_name);
 		ev3com_control.is_tx_dirty = FALSE;
     }
