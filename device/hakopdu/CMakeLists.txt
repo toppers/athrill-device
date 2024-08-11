@@ -40,7 +40,7 @@ add_compile_definitions(CXX_SAMPLE)
 add_library(hakopdu SHARED
     hakoniwa_device.c
     io/plugins/${HAKO_IO_PLUGIN}/hakoniwa_device_io.c
-    io/plugins/${HAKO_IO_PLUGIN}/packet/ev3packet.c
+    io/plugins/${HAKO_IO_PLUGIN}/packet/${HAKO_IO_PLUGIN}packet.c
     run/hakoniwa_device_run.c
 )
 target_include_directories(hakopdu
