@@ -9,6 +9,7 @@ extern void ex_device_supply_clock(DeviceClockType *dev_clock);
 typedef struct {
     uint32						cpu_freq;
     uint32						timer_fd;
+    uint32                      hako_time_only;
 } HakoniwaAssetDeviceControllerType;
 
 extern HakoniwaAssetDeviceControllerType hakoniwa_asset_controller;
