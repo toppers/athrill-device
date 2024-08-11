@@ -19,7 +19,17 @@ add_compile_options(-Wtrigraphs)
 set(CMAKE_C_FLAGS "-std=gnu99")
 set(CMAKE_CXX_FLAGS "-std=c++17")
 
-set(CORE_DIR ../../../athrill/src)
+# 環境変数CORE_DIRが設定されているかをチェック
+if(NOT DEFINED ENV{CORE_DIR})
+    # 環境変数が設定されていない場合、CMake変数CORE_DIRにデフォルト値を設定
+    set(CORE_DIR ../../../athrill/src)
+else()
+    # 環境変数が設定されている場合、その値をCMake変数CORE_DIRに設定
+    set(CORE_DIR $ENV{CORE_DIR})
+endif()
+
+# 設定されたCORE_DIRを表示（デバッグ目的）
+message(STATUS "CORE_DIR is set to: ${CORE_DIR}")
 
 include_directories("${CORE_DIR}/inc")
 include_directories("${CORE_DIR}/cpu")
