@@ -26,19 +26,24 @@ void ex_device_init(MpuAddressRegionType *region, AthrillExDevOperationType *ath
 
 void ex_device_supply_clock(DeviceClockType *dev_clock)
 {
+	//printf("ex_device_supply_clock:pass 0\n");
 	if (hako_client_is_simulation_mode() != 0) {
 		hako_client_notify_write_pdu_done(hakoniwa_asset_sample_controller.asset_name);
 		return;
 	}
+	//printf("ex_device_supply_clock:pass 1\n");
 	if (hako_client_is_pdu_created() != 0) {
 		return;
 	}
+	//printf("ex_device_supply_clock:pass 2\n");
 	if (hako_client_pdu_is_dirty(hakoniwa_asset_sample_controller.asset_name, hakoniwa_asset_sample_controller.robo_name, HAKO_SAMPLEDEV_CHANNEL_RX_ID) == 0) {
-		(void)hako_client_read_pdu(hakoniwa_asset_sample_controller.asset_name, hakoniwa_asset_sample_controller.robo_name, HAKO_SAMPLEDEV_CHANNEL_RX_ID, (char*)&hakoniwa_asset_sample_controller.rx_data, HAKO_SAMPLEDEV_CHANNEL_RX_SIZE);
+		int ret = hako_client_read_pdu(hakoniwa_asset_sample_controller.asset_name, hakoniwa_asset_sample_controller.robo_name, HAKO_SAMPLEDEV_CHANNEL_RX_ID, (char*)&hakoniwa_asset_sample_controller.rx_data, HAKO_SAMPLEDEV_CHANNEL_RX_SIZE);
+		printf("hako_client_read_pdu: ret=%d data: %u\n", ret, hakoniwa_asset_sample_controller.rx_data);
 	}
 	hako_client_notify_read_pdu_done(hakoniwa_asset_sample_controller.asset_name);
 	if (hakoniwa_asset_sample_controller.is_tx_dirty != 0) {
-		(void)hako_client_write_pdu(hakoniwa_asset_sample_controller.asset_name, hakoniwa_asset_sample_controller.robo_name, HAKO_SAMPLEDEV_CHANNEL_TX_ID, (char*)&hakoniwa_asset_sample_controller.tx_data, HAKO_SAMPLEDEV_CHANNEL_TX_SIZE);
+		int ret = hako_client_write_pdu(hakoniwa_asset_sample_controller.asset_name, hakoniwa_asset_sample_controller.robo_name, HAKO_SAMPLEDEV_CHANNEL_TX_ID, (char*)&hakoniwa_asset_sample_controller.tx_data, HAKO_SAMPLEDEV_CHANNEL_TX_SIZE);
+		printf("hako_client_write_pdu: ret=%d data: %u\n", ret, hakoniwa_asset_sample_controller.tx_data);
 		hakoniwa_asset_sample_controller.is_tx_dirty = 0;
 	}
 	return;

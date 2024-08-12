@@ -3,7 +3,7 @@
 
 #include "athrill_exdev.h"
 
-#define EX_DEVICE_MEMORY_START  0x900F0000
+#define EX_DEVICE_MEMORY_START  0x090F0000
 #define EX_DEVICE_MEMORY_SIZE	(1U * 1024U) /* Bytes */
 
 #define HAKO_SMAPLEDEV_TX_ADDR EX_DEVICE_MEMORY_START
