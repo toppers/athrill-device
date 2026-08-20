@@ -1,0 +1,17 @@
+version: 1
+
+build:
+  type: Release
+  dir: .hako/build
+  parallel: 0
+
+components:
+  hakotime: true
+  hakopdu_ev3: true
+
+validation:
+  tests: true
+
+paths:
+  athrill_root: ../athrill
+  hakoniwa_core_root: ../hakoniwa-business-pack/work/foundation/install
