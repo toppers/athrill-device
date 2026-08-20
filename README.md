@@ -1,6 +1,19 @@
 # athrill-device
 athrill device for external shared library.
 
+## Hakoniwa Core Pro EXDEV build
+
+The `hakoniwa` branch provides portable `hakotime` and `hakopdu_ev3` external-device libraries under `device/hako-exdev`. Place `athrill`, `athrill-device`, and `hakoniwa-business-pack` as sibling repositories, then run:
+
+```shell
+python tools/hako.py doctor
+python tools/hako.py build
+python tools/hako.py test
+python tools/hako.py --install-dir <foundation-prefix> install
+```
+
+Build choices and dependency roots are declared in `hakoniwa-build.yaml`. The install operation writes a Foundation Component Receipt under `<foundation-prefix>/share/hakoniwa/receipts`.
+
 ## athrill-device 紹介記事
 * [仮想 IoT デバイスを Athrill で作る！](https://qiita.com/kanetugu2018/items/5bf890c0945c299eb7f0)
 

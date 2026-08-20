@@ -4,4 +4,6 @@
 *.dylib
 *.elf
 *.elf.*
+*.pyc
+__pycache__/
 /.hako/
